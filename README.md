@@ -26,14 +26,14 @@ From the root of your project, simply run:
 tocsify docs --file=docs/toc.md
 ```
 
-### Save to File (Verbose)
+### Save File with Verbose Output
 For verbose output that also saves to a file, run:
 
 ```bash
 tocsify docs --file=docs/toc.md --verbose
 ```
 
-### Write to Console (Testing)
+### Write to Console
 
 To just write to `stdout` -- without saving a file -- run:
 
