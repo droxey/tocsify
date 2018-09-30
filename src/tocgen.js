@@ -26,7 +26,7 @@ function generate(dir, flags) {
       const linkToc = toc.linkify;
       const rDir = `${dir}/`;
 
-      const entry = toc(fs.readFileSync(f, 'utf8'), {
+      const hdr = toc(fs.readFileSync(f, 'utf8'), {
         filter(s, e) {
           return (
             !(s.indexOf(SKIP.head) > -1 || s.indexOf(SKIP.all) > -1)
@@ -35,16 +35,14 @@ function generate(dir, flags) {
         },
         linkify(tok, text, slug) {
           const newToc = linkToc(tok, text, slug, {});
-          newToc.content = newToc.content
-            .replace('#', `${f}#`)
-            .replace(rDir, '');
+          newToc.content = newToc.content.replace('#', `${f}#`).replace(rDir, '');
           return newToc;
         }
       });
 
-      let retEntry = `### [${f}](${f.replace(rDir, '')})\n${entry.content}\n`;
-      if (entry.content.length > 0) retEntry += '\n';
-      return retEntry.replace(rDir, '');
+      let l = `### [${f.replace('.md', '')}](${f.replace(rDir, '')})\n${hdr.content}\n`;
+      if (hdr.content.length > 0) l += '\n';
+      return l.replace(rDir, '');
     });
 
     const final = entries.join(joinChar);

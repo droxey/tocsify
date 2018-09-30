@@ -1,4 +1,4 @@
-### [test/markdown-guide.md](test/markdown-guide.md)
+### [test/markdown-guide](test/markdown-guide.md)
 - [Markdown](test/markdown-guide.md#markdown)
   * [Headings](test/markdown-guide.md#headings)
   * [Text](test/markdown-guide.md#text)
@@ -13,9 +13,9 @@
   * [Images](test/markdown-guide.md#images)
   * [Emoji](test/markdown-guide.md#emoji)
 
-### [test/single-header.md](test/single-header.md)
+### [test/single-header](test/single-header.md)
 
-### [test/test-file.md](test/test-file.md)
+### [test/test-file](test/test-file.md)
   * [Header 2](test/test-file.md#header-2)
     + [Header 3](test/test-file.md#header-3)
       - [Header 4](test/test-file.md#header-4)
