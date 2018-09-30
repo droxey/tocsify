@@ -14,9 +14,7 @@ const cli = meow(
 
   Examples
     $ tocsify docs
-
     $ tocsify docs --output=docs/toc.md
-
     $ tocsify docs -v
 `,
   {
