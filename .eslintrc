@@ -6,6 +6,7 @@
   },
   "rules": {
     "comma-dangle": ["error", "only-multiline"],
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "prefer-template": "off"
   }
 }

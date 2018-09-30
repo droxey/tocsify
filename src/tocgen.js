@@ -19,8 +19,13 @@ function generate(dir, out) {
 
       const entry = toc(fs.readFileSync(f, 'utf8'), {
         filter(str, ele) {
-          const ignoreHeader = str.indexOf('{docsify-ignore}') > 0;
-          return ele.level !== 1 || ele.slug !== fSlug || ignoreHeader;
+          return (
+            !(
+              str.indexOf('{docsify-ignore}') > 0
+              && str.indexOf('{docsify-ignore-all}' > 0)
+            )
+            && (ele.level !== 1 || ele.slug !== fSlug)
+          );
         },
         linkify(tok, text, slug) {
           const newToc = linkToc(tok, text, slug, {});
@@ -29,15 +34,19 @@ function generate(dir, out) {
         }
       });
 
-      return `### [${pp.name}](${f})\n${entry.content}\n\n`;
+      let retEntry = `### [${pp.name}](${f})\n${entry.content}\n`;
+      if (entry.content.length > 0) retEntry += '\n';
+
+      return retEntry;
     });
 
     const joinChar = out ? '' : '\n';
     const final = entries.join(joinChar);
-    process.stdout.write(final);
+    process.stdout.write(
+      '[docsify-tocgen] SUCCESS: ToC built.\n---\n\n' + final
+    );
 
     if (out) {
-      // Write the file to the path specified.
       fs.writeFile(
         out,
         final,
