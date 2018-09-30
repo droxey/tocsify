@@ -23,7 +23,8 @@ const cli = meow(
     flags: {
       verbose: {
         type: 'boolean',
-        alias: 'v'
+        alias: 'v',
+        default: false
       },
       file: {
         type: 'string',
