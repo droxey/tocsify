@@ -6,14 +6,31 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="description" content="Generates a table of contents based on the structure of your docsify docs directory! Respects docsify syntax for ignoring headers, etc.">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="s3.outputs.io/img/icon/favicon/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="s3.outputs.io/img/icon/favicon/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="s3.outputs.io/img/icon/favicon/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="s3.outputs.io/img/icon/favicon/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="s3.outputs.io/img/icon/favicon/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" href="//s3.outputs.io/img/icon/favicon/favicon-57x57.png" sizes="57x57">
     <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
   </head>
   <body>
-    <div id="app"></div>
+    <div data-app id="app"></div>
     <script>
       window.$docsify = {
         name: 'tocsify',
-        repo: 'https://github.com/droxey/tocsify'
+        repo: 'https://github.com/droxey/tocsify',
+        homepage: 'index.md',
+        coverPage: false,
+        onlyCover: false,
+        loadSidebar: false
+      };
+
+      var isDeployed = window.document.location.href.indexOf("droxey.com") !== -1;
+      if (isDeployed) {
+        window.$docsify = {
+          basePath: "https://droxey.com/tocsify/"
+        };
       }
     </script>
     <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
