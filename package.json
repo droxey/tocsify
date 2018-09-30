@@ -12,7 +12,7 @@
     "test:only": "mocha --require babel-core/register --require babel-polyfill --recursive",
     "test:watch": "npm test -- --watch",
     "cover": "istanbul cover _mocha -- --require babel-core/register --require babel-polyfill --recursive",
-    "lint": "eslint src",
+    "lint": "eslint src test",
     "build": "cross-env BABEL_ENV=production babel src --out-dir lib",
     "prepublish": "npm run clean && npm run lint && npm run test && npm run build"
   },
@@ -41,8 +41,8 @@
   },
   "homepage": "https://github.com/droxey/npm-docsify-tocgen#readme",
   "dependencies": {
-    "glob": "~3.2.7",
-    "markdown-toc": "~0.12.12"
+    "glob": "^7.1.3",
+    "markdown-toc": "^1.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
