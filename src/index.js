@@ -6,16 +6,15 @@ const generate = require('../src/tocgen');
 const cli = meow(
   `
   Usage
-    $ tocsify docs
+    $ tocsify docs --output=docs/toc.md
 
   Options
     --verbose, -v   Write output to stdout.
     --file, -f      Write output to file.
 
   Examples
-    $ tocsify docs
     $ tocsify docs --output=docs/toc.md
-    $ tocsify docs -v
+    $ tocsify docs --verbose --output=docs/toc.md
 `,
   {
     flags: {
