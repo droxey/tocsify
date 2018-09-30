@@ -10,46 +10,6 @@
 * Skips generation for headers marked `{docsify-ignore}` and `{docsify-ignore-all}`.
 * Adds relative path to title in each top-level entry for context.
 
-## Installation
-
-```bash
-npm install tocsify
-```
-
-## Usage
-
-### Save to File (Typical)
-
-From the root of your project, simply run:
-
-```bash
-tocsify docs --file=docs/toc.md
-```
-
-### Save to File (Verbose)
-For verbose output that also saves to a file, run:
-
-```bash
-tocsify docs --file=docs/toc.md --verbose
-```
-
-### Write to Console (Testing)
-
-To just write to `stdout` -- without saving a file -- run:
-
-```bash
-tocsify docs --verbose
-```
-
-## Integration
-
-Integration with a [Docsify](https://docsify.js.org) homepage is easy!
-
-Paste the following snippet to `index.md`:
-
-```markdown
 ## Table of Contents
-[filename](toc.md ':include')
-```
 
-A working `index.md` file can be found in the docs directory [here](docs/index.md) for reference.
+[filename](toc.md ':include')

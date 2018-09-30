@@ -1,21 +1,36 @@
+#!/usr/bin/env node
+
+const meow = require('meow');
 const generate = require('../src/tocgen');
 
-const dir = process.argv[2];
-const index = process.argv[3];
+const cli = meow(
+  `
+  Usage
+    $ tocsify docs
 
-if (!dir) {
-  process.stdout.write(
-    `
-    Usage:
-      docsify-tocgen docs
-      docsify-tocgen docs output-file.md
-    `
-  );
-  process.exit(1);
-}
+  Options
+    --verbose, -v  Write output to stdout.
+    --file, -f   Write output to file.
 
-const tocOutput = generate(dir, index);
+  Examples
+    $ tocsify docs
 
-if (!index) {
-  process.stdout.write(tocOutput);
-}
+    $ tocsify docs --output=docs/toc.md
+
+    $ tocsify docs -v
+`,
+  {
+    flags: {
+      verbose: {
+        type: 'boolean',
+        alias: 'v'
+      },
+      file: {
+        type: 'string',
+        alias: 'f'
+      }
+    }
+  }
+);
+
+generate(cli.input[0], cli.flags);
