@@ -25,6 +25,7 @@ const cli = meow(
       },
       file: {
         type: 'string',
+        default: 'docs/toc.md',
         alias: 'f'
       }
     }
