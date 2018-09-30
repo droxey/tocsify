@@ -9,8 +9,8 @@ const cli = meow(
     $ tocsify docs
 
   Options
-    --verbose, -v  Write output to stdout.
-    --file, -f   Write output to file.
+    --verbose, -v   Write output to stdout.
+    --file, -f      Write output to file.
 
   Examples
     $ tocsify docs
