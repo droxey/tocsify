@@ -18,7 +18,7 @@ npm install tocsify
 
 ## Usage
 
-### Save to File (Typical)
+### Save to File
 
 From the root of your project, simply run:
 
@@ -27,6 +27,7 @@ tocsify docs --file=docs/toc.md
 ```
 
 ### Save File with Verbose Output
+
 For verbose output that also saves to a file, run:
 
 ```bash
@@ -45,7 +46,7 @@ tocsify docs --verbose
 
 Integration with a [Docsify](https://docsify.js.org) homepage is easy!
 
-Paste the following snippet to `index.md`:
+In `index.md`, paste the snippet below where the Table of Contents should appear:
 
 ```markdown
 ## Table of Contents
