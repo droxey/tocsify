@@ -15,6 +15,10 @@
 
 ### [test/single-header](test/single-header.md)
 
+### [test/test-docsify-ignore-all](test/test-docsify-ignore-all.md)
+- [Test - Ignore All {docsify-ignore-all}](test/test-docsify-ignore-all.md#test---ignore-all-docsify-ignore-all)
+  * [This Header Should Never Appear](test/test-docsify-ignore-all.md#this-header-should-never-appear)
+
 ### [test/test-file](test/test-file.md)
   * [Header 2](test/test-file.md#header-2)
     + [Header 3](test/test-file.md#header-3)

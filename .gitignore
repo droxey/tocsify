@@ -40,5 +40,6 @@ lib
 package-lock.json
 yarn.lock
 
-others
+# others
 .DS_Store
+.wakatime-project

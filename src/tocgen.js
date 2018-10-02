@@ -28,14 +28,12 @@ function generate(dir, flags) {
 
       const hdr = toc(fs.readFileSync(f, 'utf8'), {
         filter(s, e) {
-          return (
-            !(s.indexOf(SKIP.head) > -1 || s.indexOf(SKIP.all) > -1)
-            && (e.level !== 1 || e.slug !== fSlug)
-          );
+          return s.indexOf(SKIP.head) === -1 && (e.level !== 1 || e.slug !== fSlug);
         },
         linkify(tok, text, slug) {
           const newToc = linkToc(tok, text, slug, {});
           newToc.content = newToc.content.replace('#', `${f}#`).replace(rDir, '');
+          console.log('newtoc', newToc.content);
           return newToc;
         }
       });
