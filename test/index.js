@@ -44,9 +44,4 @@ describe('tocsify tests', () => {
       }
     });
   });
-
-  after((done) => {
-    fs.unlinkSync(filePath);
-    done();
-  });
 });
