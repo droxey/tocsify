@@ -33,7 +33,6 @@ function generate(dir, flags) {
         linkify(tok, text, slug) {
           const newToc = linkToc(tok, text, slug, {});
           newToc.content = newToc.content.replace('#', `${f}#`).replace(rDir, '');
-          console.log('newtoc', newToc.content);
           return newToc;
         }
       });
