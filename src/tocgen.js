@@ -42,6 +42,8 @@ function generate(dir, flags, callback) {
         if (hdr.content.length > 0) l += '\n';
         return l.replace(rDir, '');
       }
+
+      return false;
     });
 
     const final = entries.join(joinChar);
