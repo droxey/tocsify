@@ -10,16 +10,16 @@ const SKIP = {
   index: 'index.md'
 };
 
-function generate(dir, flags) {
+function generate(dir, flags, callback) {
   glob(`${dir}/**/*.md`, (err, files) => {
     if (err) throw err;
     const joinChar = flags.file ? '' : '\n';
 
     const entries = files.map((f) => {
-      if (f.match(SKIP.readme)) return;
-      if (f.match(SKIP.index)) return;
-      if (f.match(/_{1}.*[.md]/)) return;
-      if (flags.file && f.match(flags.file)) return;
+      if (f.match(SKIP.readme)) return false;
+      if (f.match(SKIP.index)) return false;
+      if (f.match(/_{1}.*[.md]/)) return false;
+      if (flags.file && f.match(flags.file)) return false;
 
       const pp = path.parse(f);
       const fSlug = toc.slugify(pp.name);
@@ -47,6 +47,9 @@ function generate(dir, flags) {
     const final = entries.join(joinChar);
     if (flags.file) fs.writeFileSync(flags.file, final, 'utf8');
     if (flags.verbose) process.stdout.write(`\n${final}`);
+
+    callback();
+    return true;
   });
 }
 
