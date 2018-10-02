@@ -8,6 +8,6 @@
     "comma-dangle": ["error", "only-multiline"],
     "consistent-return": "off",
     "prefer-template": "off",
-    "prefer-destructuring": "warn"
+    "prefer-destructuring": "off"
   }
 }
