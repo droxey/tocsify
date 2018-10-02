@@ -37,9 +37,11 @@ function generate(dir, flags) {
         }
       });
 
-      let l = `### [${f.replace('.md', '')}](${f.replace(rDir, '')})\n${hdr.content}\n`;
-      if (hdr.content.length > 0) l += '\n';
-      return l.replace(rDir, '');
+      if (hdr.content.indexOf(SKIP.all) === -1) {
+        let l = `### [${f.replace('.md', '')}](${f.replace(rDir, '')})\n${hdr.content}\n`;
+        if (hdr.content.length > 0) l += '\n';
+        return l.replace(rDir, '');
+      }
     });
 
     const final = entries.join(joinChar);
