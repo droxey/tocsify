@@ -16,10 +16,10 @@ function generate(dir, flags, callback) {
     const joinChar = flags.file ? '' : '\n';
 
     const entries = files.map((f) => {
-      if (f.match(SKIP.readme)) return false;
-      if (f.match(SKIP.index)) return false;
-      if (f.match(/_{1}.*[.md]/)) return false;
-      if (flags.file && f.match(flags.file)) return false;
+      if (f.match(SKIP.readme)) return '';
+      if (f.match(SKIP.index)) return '';
+      if (f.match(/_{1}.*[.md]/)) return '';
+      if (flags.file && f.match(flags.file)) return '';
 
       const pp = path.parse(f);
       const fSlug = toc.slugify(pp.name);
@@ -43,7 +43,7 @@ function generate(dir, flags, callback) {
         return l.replace(rDir, '');
       }
 
-      return false;
+      return '';
     });
 
     const final = entries.join(joinChar);

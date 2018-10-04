@@ -1,4 +1,4 @@
-false### [test/markdown-guide](test/markdown-guide.md)
+### [test/markdown-guide](test/markdown-guide.md)
 - [Markdown](test/markdown-guide.md#markdown)
   * [Headings](test/markdown-guide.md#headings)
   * [Text](test/markdown-guide.md#text)
@@ -22,4 +22,6 @@ false### [test/markdown-guide](test/markdown-guide.md)
         * [Header 5](test/test-file.md#header-5)
           + [Header 6](test/test-file.md#header-6)
 
-false
+### [toc-test](toc-test.md)
+- [test/single-header](toc-test.md#testsingle-header)
+
