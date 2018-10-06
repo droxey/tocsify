@@ -13,8 +13,10 @@
 
 ## Installation
 
+Install globally for use in any [Docsify](https://docsify.js.org) project!
+
 ```bash
-npm install tocsify
+npm install -g tocsify
 ```
 
 ## Usage
