@@ -1,6 +1,6 @@
 {
   "name": "tocsify",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "description": "Generates a table of contents based on the structure of your docsify docs directory!",
   "author": "Dani Roxberry <dani@makeschool.com> (https://droxey.com)",
   "license": "MIT",
