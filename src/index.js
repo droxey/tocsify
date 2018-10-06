@@ -34,4 +34,5 @@ const cli = meow(
 
 generate(cli.input[0], cli.flags, () => {
   process.stdout.write('\n[tocsify] table of contents generated!\n');
+  process.exit();
 });
