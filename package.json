@@ -1,6 +1,6 @@
 {
   "name": "tocsify",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Generates a table of contents based on the structure of your docsify docs directory!",
   "author": "Dani Roxberry <dani@makeschool.com> (https://droxey.com)",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "cover": "istanbul cover _mocha -- --require babel-core/register --require babel-polyfill --recursive --exit",
     "lint": "eslint src test",
     "build": "cross-env BABEL_ENV=production babel src --out-dir lib",
-    "prepublish": "npm run clean && npm run lint && npm run test && npm run build"
+    "prepare": "npm run clean && npm run lint && npm run test:prod && npm run build"
   },
   "files": [
     "lib",

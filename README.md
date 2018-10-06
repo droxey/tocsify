@@ -6,9 +6,10 @@
 
 ## Features
 
-* Skips markdown files beginning with `_`.
-* Skips generation for headers marked `{docsify-ignore}` and `{docsify-ignore-all}`.
 * Adds relative path to title in each top-level entry for context.
+* Skips markdown files beginning with `_`.
+* Skips generation for headers marked `{docsify-ignore}`
+* If `{docsify-ignore-all}` exists in a top level header (`# Example Header {docsify-ignore-all}`), skip generating the table of contents for the entire document.
 
 ## Installation
 
@@ -23,7 +24,7 @@ npm install tocsify
 From the root of your project, simply run:
 
 ```bash
-tocsify docs --file=docs/toc.md
+tocsify ./docs --file=./docs/toc.md
 ```
 
 ### Save File with Verbose Output
@@ -31,7 +32,7 @@ tocsify docs --file=docs/toc.md
 For verbose output that also saves to a file, run:
 
 ```bash
-tocsify docs --file=docs/toc.md --verbose
+tocsify ./docs --file=./docs/toc.md --verbose
 ```
 
 ### Write to Console
@@ -39,7 +40,7 @@ tocsify docs --file=docs/toc.md --verbose
 To just write to `stdout` -- without saving a file -- run:
 
 ```bash
-tocsify docs --verbose
+tocsify ./docs --verbose
 ```
 
 ## Integration
