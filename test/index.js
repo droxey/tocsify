@@ -5,21 +5,24 @@ const generate = require('../src/tocgen');
 
 const expect = chai.expect;
 const file = chaiFiles.file;
+
 const testDir = './docs';
 const fileName = 'toc-test.md';
 const filePath = `${testDir}/${fileName}`;
+const maxDepth = 3;
 
 chai.use(chaiFiles);
 
 describe('tocsify tests', () => {
   before((done) => {
     generate(
-      testDir,
-      {
+      testDir, {
         verbose: false,
         v: false,
         file: filePath,
-        f: filePath
+        f: filePath,
+        m: maxDepth,
+        maxdepth: maxDepth
       },
       () => {
         done();

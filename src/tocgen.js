@@ -27,6 +27,7 @@ function generate(dir, flags, callback) {
       const rDir = `${dir}/`;
 
       const hdr = toc(fs.readFileSync(f, 'utf8'), {
+        maxdepth: flags.maxdepth,
         filter(s, e) {
           return s.indexOf(SKIP.head) === -1 && (e.level !== 1 || e.slug !== fSlug);
         },

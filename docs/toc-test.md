@@ -18,13 +18,4 @@
 ### [test/test-file](test/test-file.md)
   * [Header 2](test/test-file.md#header-2)
     + [Header 3](test/test-file.md#header-3)
-      - [Header 4](test/test-file.md#header-4)
-        * [Header 5](test/test-file.md#header-5)
-          + [Header 6](test/test-file.md#header-6)
-
-### [toc](toc.md)
-- [test/markdown-guide](toc.md#testmarkdown-guide)
-- [test/single-header](toc.md#testsingle-header)
-- [test/test-file](toc.md#testtest-file)
-- [toc-test](toc.md#toc-test)
 
