@@ -29,12 +29,14 @@ npm install -g tocsify
   Options
     --verbose, -v   Write output to stdout.
     --file, -f      Write output to file.
+    --header, -h    Include a descriptive header. Default is true.
     --maxdepth, -m  Specify max level header(1 - 6) to output. Default is 3.
 
   Examples
     $ tocsify docs --file=docs/toc.md
     $ tocsify docs --verbose --file=docs/toc.md
     $ tocsify docs --maxdepth=2
+    $ tocsify docs --header=false
 ```
 
 ## Integration
