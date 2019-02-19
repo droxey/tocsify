@@ -11,19 +11,25 @@ const cli = meow(
   Options
     --verbose, -v   Write output to stdout.
     --file, -f      Write output to file.
-    --maxdepth, -m  Specify max level header(1 - 6) to output.Default is 3.
+    --header, -h    Include a descriptive header. Default is true.
+    --maxdepth, -m  Specify max level header(1 - 6) to output. Default is 3.
 
   Examples
     $ tocsify docs --file=docs/toc.md
     $ tocsify docs --verbose --file=docs/toc.md
     $ tocsify docs --maxdepth=2
-
+    $ tocsify docs --header=false
 `, {
     flags: {
       verbose: {
         type: 'boolean',
         alias: 'v',
         default: false
+      },
+      header: {
+        type: 'boolean',
+        alias: 'h',
+        default: true
       },
       file: {
         type: 'string',
@@ -35,6 +41,7 @@ const cli = meow(
         alias: 'm',
         default: 6
       },
+
     }
   }
 );

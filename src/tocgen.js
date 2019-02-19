@@ -39,7 +39,8 @@ function generate(dir, flags, callback) {
       });
 
       if (hdr.content.indexOf(SKIP.all) === -1) {
-        let l = `### [${f.replace('.md', '')}](${f.replace(rDir, '')})\n${hdr.content}\n`;
+        let l = flags.header ? '### ' : '';
+        l += `[${f.replace('.md', '')}](${f.replace(rDir, '')})\n${hdr.content}\n`;
         if (hdr.content.length > 0) l += '\n';
         return l.replace(rDir, '');
       }

@@ -8,7 +8,7 @@
 
 * Adds relative path to title in each top-level entry for context.
 * Skips markdown files beginning with `_`.
-* Allows users to specify `maxdepth` for cleaner Table of Content generation.
+* Allows users to specify `maxdepth` for cleaner generation.
 * Skips generation for headers marked `{docsify-ignore}`
 * If `{docsify-ignore-all}` exists in a top level header (`# Example Header {docsify-ignore-all}`), skip generating the table of contents for the entire document.
 
@@ -29,7 +29,7 @@ npm install -g tocsify
   Options
     --verbose, -v   Write output to stdout.
     --file, -f      Write output to file.
-    --maxdepth, -m  Specify max level header(1 - 6) to output.Default is 3.
+    --maxdepth, -m  Specify max level header(1 - 6) to output. Default is 3.
 
   Examples
     $ tocsify docs --file=docs/toc.md

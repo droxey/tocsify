@@ -10,6 +10,7 @@ const testDir = './docs';
 const fileName = 'toc-test.md';
 const filePath = `${testDir}/${fileName}`;
 const maxDepth = 3;
+const header = false;
 
 chai.use(chaiFiles);
 
@@ -22,7 +23,9 @@ describe('tocsify tests', () => {
         file: filePath,
         f: filePath,
         m: maxDepth,
-        maxdepth: maxDepth
+        maxdepth: maxDepth,
+        h: header,
+        headers: header
       },
       () => {
         done();
