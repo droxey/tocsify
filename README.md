@@ -8,6 +8,7 @@
 
 * Adds relative path to title in each top-level entry for context.
 * Skips markdown files beginning with `_`.
+* Allows users to specify `maxdepth` for cleaner Table of Content generation.
 * Skips generation for headers marked `{docsify-ignore}`
 * If `{docsify-ignore-all}` exists in a top level header (`# Example Header {docsify-ignore-all}`), skip generating the table of contents for the entire document.
 
@@ -21,35 +22,26 @@ npm install -g tocsify
 
 ## Usage
 
-### Save to File
-
-From the root of your project, simply run:
-
 ```bash
-tocsify ./docs --file=./docs/toc.md
-```
+  Usage
+    $ tocsify docs --file=docs/toc.md
 
-### Save File with Verbose Output
+  Options
+    --verbose, -v   Write output to stdout.
+    --file, -f      Write output to file.
+    --maxdepth, -m  Specify max level header(1 - 6) to output.Default is 3.
 
-For verbose output that also saves to a file, run:
-
-```bash
-tocsify ./docs --file=./docs/toc.md --verbose
-```
-
-### Write to Console
-
-To just write to `stdout` -- without saving a file -- run:
-
-```bash
-tocsify ./docs --verbose
+  Examples
+    $ tocsify docs --file=docs/toc.md
+    $ tocsify docs --verbose --file=docs/toc.md
+    $ tocsify docs --maxdepth=2
 ```
 
 ## Integration
 
 Integration with a [Docsify](https://docsify.js.org) homepage is easy!
 
-In `index.md`, paste the snippet below where the Table of Contents should appear:
+In `index.md` or `_sidebar.md`, paste the snippet below where the Table of Contents should appear:
 
 ```markdown
 ## Table of Contents
