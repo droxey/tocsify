@@ -91,6 +91,16 @@ function withSlash(baseUrl) {
   return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 }
 
+function pageDescription(parsed) {
+  const line = parsed.frontmatter.split('\n').find((item) => item.startsWith('description:'));
+  if (!line) return '';
+  let value = line.slice('description:'.length).trim();
+  const quote = value[0];
+  if ((quote === '"' || quote === "'") && value.endsWith(quote) && value.length > 1) {
+    value = value.slice(1, -1);
+  }
+  return value;
+}
 function makePage(rel, abs, baseUrl) {
   void baseUrl;
   const parsed = parse(readText(abs));
@@ -99,7 +109,7 @@ function makePage(rel, abs, baseUrl) {
     abs,
     url: '',
     title: '',
-    description: '',
+    description: pageDescription(parsed),
     ignoreAll: parsed.headings.some((heading) => heading.ignoreAll),
   };
 }
@@ -131,7 +141,6 @@ function collectH2Pages(docsDir, baseUrl, exclude) {
   }
   return pages.filter((page) => !page.ignoreAll);
 }
-
 function buildSite({ docsDir, baseUrl, exclude = [], title, summary, cwd }) {
   const root = withSlash(baseUrl || '');
   const pages = collectH2Pages(docsDir, root, exclude);

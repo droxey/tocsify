@@ -221,3 +221,17 @@ test('lists the home page first, then toc pages, without underscore, toc, or ign
   });
   assert.equal(withHome.groups[0].pages[0].rel, 'README.md');
 });
+
+test('description comes from front matter', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHome text.\n',
+    'quoted.md': '---\ndescription: "Quoted text"\n---\n# Quoted\n',
+    'single.md': "---\ndescription: 'Single text'\n---\n# Single\n",
+    'plain.md': '---\ndescription: Plain text\n---\n# Plain\n',
+  });
+  const pages = siteOf(dir).groups.flatMap((group) => group.pages);
+  const byRel = Object.fromEntries(pages.map((page) => [page.rel, page.description]));
+  assert.equal(byRel['quoted.md'], 'Quoted text');
+  assert.equal(byRel['single.md'], 'Single text');
+  assert.equal(byRel['plain.md'], 'Plain text');
+});
