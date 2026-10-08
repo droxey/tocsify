@@ -646,3 +646,15 @@ test('reference-style definitions resolve like the links and images that use the
   assert.match(full, /^ {2}\[abs\]: https:\/\/example\.com\/abs$/m);
   assert.match(full, /`\[code\]\[g\]`/);
 });
+
+test('angle-bracket destinations are rewritten with spaces percent-encoded', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[angle](<my file.md>) ![pic](<my pic.png>) [abs](<https://example.com/a b>)\n\n[def]: <other page.md>\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /\[angle\]\(https:\/\/example\.com\/docs\/my%20file\.md\)/);
+  assert.match(full, /!\[pic\]\(https:\/\/example\.com\/docs\/guide\/my%20pic\.png\)/);
+  assert.match(full, /\[abs\]\(<https:\/\/example\.com\/a b>\)/);
+  assert.match(full, /^\[def\]: https:\/\/example\.com\/docs\/other%20page\.md$/m);
+});

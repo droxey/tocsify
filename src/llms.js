@@ -381,7 +381,7 @@ function htmlTarget(url, ctx) {
   return absolute(url, ctx.baseUrl, '');
 }
 
-const DEST = '([^)\\s]+)';
+const DEST = '(<[^>\\n]*>|[^)\\s]+)';
 const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const IMAGE = new RegExp(`!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const BADGE = new RegExp(`\\[!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)\\]\\(${DEST}([^)]*)\\)`, 'g');
@@ -390,6 +390,10 @@ const IMG_SRC = /(<img\b[^>]*\bsrc\s*=\s*)(["'])([^"']+)\2/gi;
 const A_HREF = /(<a\b[^>]*\bhref\s*=\s*)(["'])([^"']+)\2/gi;
 
 function mapDest(dest, target, ctx) {
+  if (/^<[^>]*>$/.test(dest)) {
+    const inner = dest.slice(1, -1);
+    return isRelative(inner) ? target(inner, ctx) : dest;
+  }
   return target(dest, ctx);
 }
 
