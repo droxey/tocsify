@@ -296,6 +296,8 @@ function renderLlmsTxt(site) {
       out += `- [${page.title}](${page.url})${desc}\n`;
     }
   }
+  const fullUrl = new URL('llms-full.txt', site.baseUrl).href;
+  out += `\n## Optional\n\n- [llms-full.txt](${fullUrl}): Full text of every page in one file\n`;
   return out;
 }
 

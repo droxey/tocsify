@@ -450,3 +450,9 @@ test('sidebar grouping without _sidebar.md throws', () => {
   const dir = makeDocs({ 'README.md': '# Home\n' });
   assert.throws(() => siteOf(dir, { group: 'sidebar' }), /sidebar file not found: _sidebar\.md/);
 });
+
+test('llms.txt ends with ## Optional linking llms-full.txt', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n\nHi.\n' });
+  const text = renderLlmsTxt(siteOf(dir));
+  assert.match(text, /## Optional\n\n- \[llms-full\.txt\]\(https:\/\/example\.com\/docs\/llms-full\.txt\): Full text of every page in one file\n$/);
+});
