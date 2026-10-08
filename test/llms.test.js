@@ -109,3 +109,18 @@ test('ignores a failed git command and a non-GitHub remote', () => {
     docsDir: pkgDir, cwd: pkgDir, env: {}, gitRemote: () => 'https://gitlab.com/a/b.git',
   }), 'https://from-pkg.example/docs/');
 });
+
+test('uses package.json homepage without its hash or query', () => {
+  const hashed = makeDocs({
+    'package.json': JSON.stringify({ homepage: 'https://example.com/docs/#/index?x=1' }),
+  });
+  assert.equal(resolveBaseUrl({
+    docsDir: hashed, cwd: hashed, env: {}, gitRemote: () => '',
+  }), 'https://example.com/docs/');
+  const bare = makeDocs({
+    'package.json': JSON.stringify({ homepage: 'https://example.com/app' }),
+  });
+  assert.equal(resolveBaseUrl({
+    docsDir: bare, cwd: bare, env: {}, gitRemote: () => '',
+  }), 'https://example.com/app/');
+});

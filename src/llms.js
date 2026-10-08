@@ -44,7 +44,10 @@ function resolveBaseUrl({ flag, docsDir, cwd, env = {}, gitRemote = defaultGitRe
   if (mapped) return mapped;
   try {
     const pkg = JSON.parse(fs.readFileSync(path.join(cwd, 'package.json'), 'utf8'));
-    if (pkg && typeof pkg.homepage === 'string' && /^https?:\/\//i.test(pkg.homepage)) return pkg.homepage;
+    if (pkg && typeof pkg.homepage === 'string' && /^https?:\/\//i.test(pkg.homepage)) {
+      const bare = pkg.homepage.split('#')[0].split('?')[0];
+      return bare.endsWith('/') ? bare : `${bare}/`;
+    }
   } catch (err) { /* no package */ }
   throw new Error('no base url');
 }
