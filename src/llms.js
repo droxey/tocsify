@@ -481,8 +481,91 @@ function outsideCode(text, fn) {
   }).join('\n');
 }
 
+function includeMode(url, title) {
+  const typeMatch = title.match(/:type=(\S+)/);
+  const type = typeMatch ? typeMatch[1] : '';
+  const clean = url.split('#')[0].split('?')[0];
+  if (type === 'markdown' || (!type && /\.(md|markdown)$/i.test(clean))) return 'markdown';
+  return 'link';
+}
+
+function resolveLocal(url, ctx) {
+  const clean = url.split('#')[0].split('?')[0];
+  const abs = clean.startsWith('/')
+    ? path.resolve(ctx.docsDir, clean.slice(1))
+    : path.resolve(path.dirname(ctx.abs), clean);
+  const relToDocs = path.relative(path.resolve(ctx.docsDir), abs);
+  return { abs, rel: relToDocs.split(path.sep).join('/') };
+}
+
+function findNextLink(text, from) {
+  for (let i = from; i < text.length; i += 1) {
+    if (text[i] !== '[') continue;
+    if (text[i - 1] === '!') continue;
+    const close = text.indexOf(']', i + 1);
+    if (close === -1 || text[close + 1] !== '(') continue;
+    let j = close + 2;
+    while (j < text.length && text[j] === ' ') j += 1;
+    const urlStart = j;
+    while (j < text.length && text[j] !== ')' && text[j] !== ' ' && text[j] !== '\n') j += 1;
+    const url = text.slice(urlStart, j);
+    while (j < text.length && text[j] === ' ') j += 1;
+    let title = '';
+    if (text[j] === '"' || text[j] === "'") {
+      const quote = text[j];
+      const titleEnd = text.indexOf(quote, j + 1);
+      if (titleEnd === -1) continue;
+      title = text.slice(j + 1, titleEnd);
+      j = titleEnd + 1;
+      while (j < text.length && text[j] === ' ') j += 1;
+    }
+    if (text[j] !== ')') continue;
+    return {
+      start: i,
+      end: j + 1,
+      url,
+      title,
+      raw: text.slice(i, j + 1),
+    };
+  }
+  return null;
+}
+
+// An include that stays a link points where Docsify fetches it: the including file's folder.
+function includeLink(link, ctx) {
+  const at = link.raw.indexOf(link.url, link.raw.indexOf(']('));
+  const url = absolute(link.url, ctx.baseUrl, fileFolder(ctx.rel));
+  return `${link.raw.slice(0, at)}${url}${link.raw.slice(at + link.url.length)}`;
+}
+
+function renderInclude(link, ctx) {
+  if (!link.title.includes(':include')) return link.raw;
+  const mode = includeMode(link.url, link.title);
+  const resolved = resolveLocal(link.url, ctx);
+  if (mode === 'link') return includeLink(link, ctx);
+  const included = readText(resolved.abs);
+  return included;
+}
+
+function expandIncludes(text, ctx) {
+  let out = '';
+  let i = 0;
+  while (i < text.length) {
+    const link = findNextLink(text, i);
+    if (!link) {
+      out += text.slice(i);
+      break;
+    }
+    out += text.slice(i, link.start);
+    out += renderInclude(link, ctx);
+    i = link.end;
+  }
+  return out;
+}
+
 function transformPlain(text, ctx) {
   let next = stripIgnoreMarkers(text);
+  next = expandIncludes(next, ctx);
   return outsideCode(next, (value) => rewritePlain(value, ctx));
 }
 

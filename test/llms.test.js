@@ -692,3 +692,37 @@ test('llms.txt descriptions render [text][ref] links as plain text', () => {
   assert.equal(pages.find((page) => page.rel === 'refs.md').description, 'Real text here.');
   assert.equal(pages.find((page) => page.rel === 'badges.md').description, 'After the badge.');
 });
+
+test('a local markdown include is inlined', () => {
+  const dir = makeDocs({
+    'README.md': [
+      '# Home',
+      '',
+      '[part](part.md \':include\')',
+      '',
+      '[root](/guide/root-part.md \':include\')',
+      '',
+      '[typed](typed.txt ":include :type=markdown")',
+      '',
+      'Plain: ![solo](solo.png) [note] [open ![pic](a.png) [spaced]( file.md) [titled](file.md "title")',
+      '[gap](file.md "title" ) [junk](file.md \'t\' x) [bad](file.md "noend) and [',
+    ].join('\n'),
+    'part.md': '# Part\n\nInlined body.\n',
+    'guide/root-part.md': 'FROM_ROOT_INCLUDE\n',
+    'guide/page.md': '# Page\n\n[sibling](sibling.md \':include\')\n',
+    'guide/sibling.md': 'FROM_SIBLING\n',
+    'typed.txt': 'Typed text.\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /# Part\n\nInlined body\./);
+  assert.match(full, /FROM_ROOT_INCLUDE/);
+  assert.match(full, /# Page\nSource: .*\n\nFROM_SIBLING/);
+  assert.match(full, /Typed text\./);
+  assert.equal(full.includes(':include'), false);
+  assert.match(full, /!\[solo\]\(https:\/\/example\.com\/docs\/solo\.png\) \[note\] \[open !\[pic\]\(https:\/\/example\.com\/docs\/a\.png\)/);
+  assert.match(full, /\[spaced\]\( file\.md\)/);
+  assert.match(full, /\[titled\]\(https:\/\/example\.com\/docs\/file\.md "title"\)/);
+  assert.match(full, /\[gap\]\(https:\/\/example\.com\/docs\/file\.md "title" \)/);
+  assert.match(full, /\[junk\]\(https:\/\/example\.com\/docs\/file\.md 't' x\)/);
+  assert.match(full, /\[bad\]\(https:\/\/example\.com\/docs\/file\.md "noend\) and \[/);
+});
