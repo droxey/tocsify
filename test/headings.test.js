@@ -59,3 +59,7 @@ test('slugify matches Docsify 5 ids for the 11 edge-case headings', () => {
   ]);
   assert.equal(parsed.headings.some((heading) => heading.raw.includes('not a heading')), false);
 });
+
+test('slugify keeps non-ASCII uppercase in Ünïcödé Ñame', () => {
+  assert.equal(slugify('Ünïcödé Ñame', new Map()), 'Ünïcödé-Ñame');
+});

@@ -10,7 +10,7 @@ function slugify(text, seen) {
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/\uFE0F/g, '')
     .replace(EMOJI, '')
-    .toLowerCase()
+    .replace(/[A-Z]+/g, (letters) => letters.toLowerCase())
     .replace(/<[^>]+>/g, '')
     .replace(PUNCT, '')
     .replace(/\s/g, '-')
