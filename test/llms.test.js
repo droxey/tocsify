@@ -350,3 +350,15 @@ test('sidebar grouping skips external links', () => {
   const site = siteOf(dir, { group: 'sidebar' });
   assert.deepEqual(site.groups.flatMap((group) => group.pages.map((page) => page.rel)), ['about.md']);
 });
+
+test('sidebar grouping warns on a missing page and skips it', () => {
+  const dir = makeDocs({
+    'about.md': '# About\n\nAbout.\n',
+    '_sidebar.md': '- Docs\n  - [Missing](missing.md)\n  - [About](about.md)\n  - [Dir](guide)\n',
+  });
+  fs.mkdirSync(path.join(dir, 'guide'));
+  const warnings = [];
+  const site = siteOf(dir, { group: 'sidebar', onWarn: (message) => warnings.push(message) });
+  assert.deepEqual(site.groups.flatMap((group) => group.pages.map((page) => page.rel)), ['about.md']);
+  assert.deepEqual(warnings, ['sidebar link not found: missing.md', 'sidebar link not found: guide.md']);
+});

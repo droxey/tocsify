@@ -192,6 +192,10 @@ function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
       const resolved = sidebarTarget(target);
       if (resolved.external) continue;
       const abs = path.resolve(docsDir, resolved.rel);
+      if (!fs.existsSync(abs)) {
+        onWarn(`sidebar link not found: ${resolved.rel}`);
+        continue;
+      }
       const page = makePage(resolved.rel, abs, baseUrl);
       bucket(section.name).pages.push(page);
     }
