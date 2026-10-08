@@ -133,6 +133,7 @@ function run(argv, {
       full = renderLlmsFull(site, {
         keepComments: parsed.values['keep-comments'],
         onWarn,
+        generated: { [fileAbs]: toc },
       });
     }
   } catch (err) {

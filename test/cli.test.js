@@ -210,3 +210,28 @@ test('a write failure exits 1 and does not keep a partial write', () => {
   assert.match(result.stderr, /\[tocsify\] error:/);
   assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), false);
 });
+
+test('a first run inlines the new toc in llms-full.txt with no warning', () => {
+  const dir = makeDocs({
+    'docs/README.md': '# Home\n\n[toc](toc.md \':include\')\n',
+    'docs/guide.md': '# Guide\n\n## Install\n',
+  });
+  const result = runCli(['--base-url=https://example.com/docs/'], dir);
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  const full = fs.readFileSync(path.join(dir, 'docs/llms-full.txt'), 'utf8');
+  assert.match(full, /\[Install\]\(https:\/\/example\.com\/docs\/guide\.md#install\)/);
+});
+
+test('a run with a stale toc.md inlines the new toc in llms-full.txt', () => {
+  const dir = makeDocs({
+    'docs/README.md': '# Home\n\n[toc](toc.md \':include\')\n',
+    'docs/guide.md': '# Guide\n\n## Install\n',
+    'docs/toc.md': '- [Stale](stale.md)\n',
+  });
+  const result = runCli(['--base-url=https://example.com/docs/'], dir);
+  assert.equal(result.status, 0);
+  const full = fs.readFileSync(path.join(dir, 'docs/llms-full.txt'), 'utf8');
+  assert.match(full, /\[Install\]\(https:\/\/example\.com\/docs\/guide\.md#install\)/);
+  assert.equal(full.includes('Stale'), false);
+});
