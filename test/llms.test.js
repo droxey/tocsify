@@ -71,3 +71,23 @@ test('maps GITHUB_REPOSITORY to a user site URL', () => {
     docsDir: dir, cwd: dir, env: { GITHUB_REPOSITORY: 'Owner/Owner.github.io' }, gitRemote: () => '',
   }), 'https://owner.github.io/');
 });
+
+test('maps https, git@, and ssh GitHub remotes', () => {
+  const dir = makeDocs({});
+  const cases = [
+    ['https://github.com/Owner/Repo.git', 'https://owner.github.io/Repo/'],
+    ['git@github.com:Owner/Repo.git', 'https://owner.github.io/Repo/'],
+    ['ssh://git@github.com/Owner/Repo.git', 'https://owner.github.io/Repo/'],
+  ];
+  for (const [remote, expected] of cases) {
+    assert.equal(resolveBaseUrl({
+      docsDir: dir, cwd: dir, env: {}, gitRemote: () => remote,
+    }), expected);
+  }
+  const gitDir = makeDocs({});
+  spawnSync('git', ['init'], { cwd: gitDir, encoding: 'utf8' });
+  spawnSync('git', ['remote', 'add', 'origin', 'https://github.com/Owner/Live.git'], { cwd: gitDir, encoding: 'utf8' });
+  assert.equal(resolveBaseUrl({
+    docsDir: gitDir, cwd: gitDir, env: {},
+  }), 'https://owner.github.io/Live/');
+});
