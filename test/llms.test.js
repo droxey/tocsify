@@ -163,3 +163,10 @@ test('falls back to index.md when README.md is missing', () => {
   assert.equal(site.title, 'Index Home');
   assert.equal(site.groups[0].pages[0].rel, 'index.md');
 });
+
+test('--title and --summary override the home page', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n\nParagraph.\n' });
+  const site = siteOf(dir, { title: 'Custom', summary: 'Short summary' });
+  assert.equal(site.title, 'Custom');
+  assert.equal(site.summary, 'Short summary');
+});

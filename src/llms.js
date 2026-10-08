@@ -88,20 +88,20 @@ function resolveBaseUrl({
 }
 
 
-function buildSite({ docsDir, baseUrl }) {
+function buildSite({ docsDir, baseUrl, title, summary }) {
   const home = findHomePage(docsDir);
-  let title = '';
-  let summary = '';
+  let resolvedTitle = title || '';
+  let resolvedSummary = summary || '';
   const pages = [];
   if (home && fs.existsSync(path.join(docsDir, home))) {
     const abs = path.join(docsDir, home);
     const parsed = parse(readText(abs));
     const h1 = parsed.headings.find((heading) => heading.level === 1);
-    title = h1 ? h1.text : '';
-    summary = parsed.firstParagraph || '';
-    pages.push({ rel: home, abs, url: '', title, description: '' });
+    if (!title) resolvedTitle = h1 ? h1.text : '';
+    if (!summary) resolvedSummary = parsed.firstParagraph || '';
+    pages.push({ rel: home, abs, url: '', title: resolvedTitle, description: '' });
   }
-  return { title, summary, groups: [{ name: 'Docs', pages }], baseUrl: baseUrl || '', docsDir };
+  return { title: resolvedTitle, summary: resolvedSummary, groups: [{ name: 'Docs', pages }], baseUrl: baseUrl || '', docsDir };
 }
 function renderLlmsTxt() { throw new Error('renderLlmsTxt missing'); }
 function renderLlmsFull() { throw new Error('renderLlmsFull missing'); }
