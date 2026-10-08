@@ -96,7 +96,7 @@ function run(argv, {
       maxdepth: Number(parsed.values.maxdepth),
       header: parsed.values.header,
     });
-    if (true) {
+    if (parsed.values.llm !== false) {
       const baseUrl = resolveBaseUrl({
         flag: parsed.values['base-url'],
         docsDir,

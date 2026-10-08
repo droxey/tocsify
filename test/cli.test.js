@@ -62,3 +62,12 @@ test('a default run writes toc.md, llms.txt, and llms-full.txt', () => {
   assert.equal(fs.existsSync(path.join(dir, 'docs/llms.txt')), true);
   assert.equal(fs.existsSync(path.join(dir, 'docs/llms-full.txt')), true);
 });
+
+test('--no-llm writes only toc.md and needs no base URL', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  const result = runCli(['--no-llm'], dir);
+  assert.equal(result.status, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), true);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/llms.txt')), false);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/llms-full.txt')), false);
+});
