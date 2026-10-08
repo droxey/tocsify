@@ -108,3 +108,11 @@ test('a fence closes only on the same character at equal or greater length', () 
   const parsed = parse('````\n```\n## inside\n````\n# After\n~~~\n## tilde\n```\n## stays in tilde\n~~~\n# Done\n');
   assert.deepEqual(parsed.headings.map((heading) => heading.text), ['After', 'Done']);
 });
+
+test('setext headings parse as level 1 and level 2', () => {
+  const parsed = parse('Top\n===\n\nSub\n---\n');
+  assert.deepEqual(parsed.headings.map((heading) => [heading.level, heading.id]), [
+    [1, 'top'],
+    [2, 'sub'],
+  ]);
+});

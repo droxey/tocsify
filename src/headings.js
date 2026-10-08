@@ -62,10 +62,10 @@ function parse(markdown) {
     } else if (
       i + 1 < lines.length
       && !mask[i + 1]
-      && /^ {0,3}-+[ \t]*$/.test(lines[i + 1])
+      && /^ {0,3}(?:=+|-+)[ \t]*$/.test(lines[i + 1])
       && line.trim()
     ) {
-      level = 2;
+      level = lines[i + 1].trim()[0] === '=' ? 1 : 2;
       raw = line.trim();
       i += 1;
     } else {
