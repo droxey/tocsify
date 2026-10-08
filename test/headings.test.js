@@ -103,3 +103,8 @@ test('headings inside backtick and tilde fences are skipped', () => {
   const parsed = parse('```\n## nope\n```\n~~~\n## also nope\n~~~\n# Yes\n');
   assert.deepEqual(parsed.headings.map((heading) => heading.text), ['Yes']);
 });
+
+test('a fence closes only on the same character at equal or greater length', () => {
+  const parsed = parse('````\n```\n## inside\n````\n# After\n~~~\n## tilde\n```\n## stays in tilde\n~~~\n# Done\n');
+  assert.deepEqual(parsed.headings.map((heading) => heading.text), ['After', 'Done']);
+});

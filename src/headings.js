@@ -26,15 +26,19 @@ function codeMask(lines) {
   for (let i = 0; i < lines.length; i += 1) {
     const match = lines[i].match(/^ {0,3}(`{3,}|~{3,})/);
     if (match) {
-      const len = match[1].length;
+      const token = match[1];
+      const char = token[0];
+      const len = token.length;
       if (!fence) {
-        fence = { len };
+        fence = { char, len };
         mask[i] = true;
         continue;
       }
-      mask[i] = true;
-      fence = null;
-      continue;
+      if (char === fence.char && len >= fence.len) {
+        mask[i] = true;
+        fence = null;
+        continue;
+      }
     }
     if (fence) mask[i] = true;
   }
