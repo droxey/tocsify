@@ -138,3 +138,14 @@ test('an unknown flag exits 1', () => {
   assert.equal(result.status, 1);
   assert.match(result.stderr, /\[tocsify\] error:/);
 });
+
+test('a missing docs folder exits 1', () => {
+  const dir = makeDocs({});
+  const missing = runCli(['missing', '--no-llm'], dir);
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /docs folder not found: missing/);
+  fs.writeFileSync(path.join(dir, 'not-a-dir'), 'x');
+  const file = runCli(['not-a-dir', '--no-llm'], dir);
+  assert.equal(file.status, 1);
+  assert.match(file.stderr, /docs folder not found: not-a-dir/);
+});

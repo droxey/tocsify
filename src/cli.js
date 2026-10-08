@@ -88,6 +88,10 @@ function run(argv, {
   }
   const dirArg = parsed.positionals[0] || 'docs';
   const docsDir = path.resolve(cwd, dirArg);
+  if (!fs.existsSync(docsDir) || !fs.statSync(docsDir).isDirectory()) {
+    stderr.write(`[tocsify] error: docs folder not found: ${dirArg}\n`);
+    return 1;
+  }
   if (!/^[1-6]$/.test(parsed.values.maxdepth)) {
     stderr.write('[tocsify] error: --maxdepth must be an integer from 1 to 6\n');
     return 1;
