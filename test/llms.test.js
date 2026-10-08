@@ -382,3 +382,33 @@ test('sidebar grouping lists each page once, at its first link', () => {
     ['Second', ['guide/setup.md']],
   ]);
 });
+
+test('sidebar grouping skips underscore, dot, toc, and ignore-all pages and allows a folder README.md', () => {
+  const dir = makeDocs({
+    'about.md': '# About\n\nAbout.\n',
+    'guide/README.md': '# Guide home\n\nNested.\n',
+    'hidden.md': '# Hidden <!-- {docsify-ignore-all} -->\n',
+    'toc.md': '# TOC\n',
+    '_navbar.md': '- [About](about.md)\n',
+    '_media/notes.md': '# Notes\n',
+    '.secret.md': '# Secret\n',
+    '_sidebar.md': [
+      '- Docs',
+      '  - [About](about.md)',
+      '  - [Nav](_navbar.md)',
+      '  - [Media](_media/notes.md)',
+      '  - [Dot](.secret.md)',
+      '  - [Hidden](hidden.md)',
+      '  - [Toc](toc.md)',
+      '  - [Guide](guide/README.md)',
+    ].join('\n'),
+  });
+  const site = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(dir, 'toc.md')],
+    group: 'sidebar',
+    cwd: dir,
+  });
+  assert.deepEqual(site.groups.flatMap((group) => group.pages.map((page) => page.rel)), ['about.md', 'guide/README.md']);
+});
