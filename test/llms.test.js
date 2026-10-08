@@ -891,3 +891,18 @@ test('a commented-out include is not expanded', () => {
   assert.match(kept, /<!--\n\[secret\]\(https:\/\/example\.com\/docs\/_parts\/secret\.md ':include'\)\n-->/);
   assert.match(stripped, /Visible\./);
 });
+
+test('llms-full.txt matches test/fixtures/site.llms-full.txt', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-golden-full-'));
+  fs.cpSync(siteDir, dir, { recursive: true });
+  const site = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(dir, 'toc.md')],
+    cwd: dir,
+  });
+  assert.equal(
+    renderLlmsFull(site),
+    fs.readFileSync(path.join(root, 'test/fixtures/site.llms-full.txt'), 'utf8'),
+  );
+});
