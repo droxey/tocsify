@@ -303,7 +303,17 @@ function renderLlmsTxt(site) {
 
 function noop() {}
 
-function renderLlmsFull() { throw new Error('later'); }
+function renderLlmsFull(site, { keepComments = false, onWarn } = {}) {
+  const warn = onWarn || noop;
+  const pages = site.groups.flatMap((group) => group.pages);
+  const blocks = pages.map((page) => {
+    let body = readText(page.abs);
+    body = body.replace(/^ {0,3}#[ \t]+.*(?:\n|$)/, '');
+    body = body.trim();
+    return `# ${page.title}\nSource: ${page.url}\n\n${body}`;
+  });
+  return `${blocks.join('\n\n')}\n`;
+}
 
 module.exports = {
   resolveBaseUrl,

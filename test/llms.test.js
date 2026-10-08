@@ -468,3 +468,16 @@ test('llms.txt matches test/fixtures/site.llms.txt', () => {
   });
   assert.equal(renderLlmsTxt(site), fs.readFileSync(path.join(root, 'test/fixtures/site.llms.txt'), 'utf8'));
 });
+
+test('llms-full.txt lists pages in llms.txt order with # Title and Source headers', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'b.md': '# Bee\n\nSecond.\n',
+  });
+  const site = siteOf(dir);
+  const full = renderLlmsFull(site);
+  const titles = [...full.matchAll(/^# .+$/gm)].map((match) => match[0]);
+  assert.deepEqual(titles, ['# Home', '# Bee']);
+  assert.match(full, /Source: https:\/\/example.com\/docs\/README.md/);
+  assert.ok(full.indexOf('# Home') < full.indexOf('# Bee'));
+});
