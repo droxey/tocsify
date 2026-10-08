@@ -599,3 +599,13 @@ test('img src resolves from the docs root, as the browser does in Docsify', () =
   assert.match(full, /<img src="https:\/\/example\.com\/docs\/img\/b\.png" alt="b">/);
   assert.match(full, /<img alt='c' src='https:\/\/example\.com\/docs\/img\/c\.png'>/);
 });
+
+test('a href resolves from the docs root, as the browser does in Docsify', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n<a href="more.md">more</a> <a class="up" href=\'../up.md\'>up</a>\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /<a href="https:\/\/example\.com\/docs\/more\.md">more<\/a>/);
+  assert.match(full, /<a class="up" href='https:\/\/example\.com\/up\.md'>up<\/a>/);
+});

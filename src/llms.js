@@ -385,6 +385,7 @@ const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const IMAGE = new RegExp(`!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const BADGE = new RegExp(`\\[!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const IMG_SRC = /(<img\b[^>]*\bsrc\s*=\s*)(["'])([^"']+)\2/gi;
+const A_HREF = /(<a\b[^>]*\bhref\s*=\s*)(["'])([^"']+)\2/gi;
 
 function mapDest(dest, target, ctx) {
   return target(dest, ctx);
@@ -406,6 +407,7 @@ function rewritePlain(text, ctx) {
   next = next.replace(/%%LLMS_SLOT_(\d+)%%/g, (full, index) => slots[Number(index)]);
   const html = (full, pre, quote, url) => `${pre}${quote}${htmlTarget(url, ctx)}${quote}`;
   next = next.replace(IMG_SRC, html);
+  next = next.replace(A_HREF, html);
   return next;
 }
 
