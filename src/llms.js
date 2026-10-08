@@ -353,9 +353,21 @@ function absolute(url, baseUrl, folder) {
   return new URL(url, `${baseUrl}${folder ? `${folder}/` : ''}`).href;
 }
 
+function splitSuffix(url) {
+  const at = url.search(/[?#]/);
+  return at === -1 ? [url, ''] : [url.slice(0, at), url.slice(at)];
+}
+
+function docsifyPagePath(file) {
+  if (file === '' || file.endsWith('/')) return `${file}README.md`;
+  if (/\.(md|html)$/.test(file)) return file;
+  return `${file}.md`;
+}
+
 function linkTarget(url, ctx) {
   if (!isRelative(url)) return url;
-  return absolute(url, ctx.baseUrl, '');
+  const [file, suffix] = splitSuffix(url);
+  return absolute(`${docsifyPagePath(file)}${suffix}`, ctx.baseUrl, '');
 }
 
 const DEST = '([^)\\s]+)';

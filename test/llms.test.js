@@ -553,3 +553,17 @@ test('absolute URLs, mailto links, #anchors, protocol-relative URLs, and code st
   assert.match(full, /`\[not a link\]\(skip\.md\)`/);
   assert.match(full, /```\n\[not\]\(skip2\.md\)\n```/);
 });
+
+test('extensionless and folder links load .md and README.md, as Docsify does', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[ext](other) [dir](guide/) [hash](other#install) [query](?tab=1) [page](demo.html) [md](other.md?x=1)\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /\[ext\]\(https:\/\/example\.com\/docs\/other\.md\)/);
+  assert.match(full, /\[dir\]\(https:\/\/example\.com\/docs\/guide\/README\.md\)/);
+  assert.match(full, /\[hash\]\(https:\/\/example\.com\/docs\/other\.md#install\)/);
+  assert.match(full, /\[query\]\(https:\/\/example\.com\/docs\/README\.md\?tab=1\)/);
+  assert.match(full, /\[page\]\(https:\/\/example\.com\/docs\/demo\.html\)/);
+  assert.match(full, /\[md\]\(https:\/\/example\.com\/docs\/other\.md\?x=1\)/);
+});
