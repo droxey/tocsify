@@ -177,6 +177,7 @@ function sidebarTarget(target) {
 
 function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
   const sidebarPath = path.join(docsDir, '_sidebar.md');
+  if (!fs.existsSync(sidebarPath)) throw new Error('sidebar file not found: _sidebar.md');
   const sections = parseSidebar(readText(sidebarPath));
   const excluded = new Set(exclude.map((item) => path.resolve(item)));
   const seen = new Set();

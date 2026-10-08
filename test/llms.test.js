@@ -445,3 +445,8 @@ test('sidebar grouping adds the home page when the sidebar does not link it', ()
   });
   assert.deepEqual(excludedSite.groups[0].pages.map((page) => page.rel), ['about.md']);
 });
+
+test('sidebar grouping without _sidebar.md throws', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n' });
+  assert.throws(() => siteOf(dir, { group: 'sidebar' }), /sidebar file not found: _sidebar\.md/);
+});
