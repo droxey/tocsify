@@ -90,11 +90,10 @@ function resolveBaseUrl({
 function withSlash(baseUrl) {
   return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 }
-
 function pageTitle(rel, parsed) {
-  void rel;
   const h1 = parsed.headings.find((heading) => heading.level === 1);
-  return h1 ? h1.text : '';
+  if (h1) return h1.text;
+  return rel.replace(/\.md$/, '');
 }
 function pageDescription(parsed) {
   const line = parsed.frontmatter.split('\n').find((item) => item.startsWith('description:'));

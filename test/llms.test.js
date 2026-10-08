@@ -255,3 +255,10 @@ test('an entry has no description when the page has no paragraph', () => {
   assert.equal(renderLlmsTxt(siteOf(dir)).includes('[Empty]'), true);
   assert.match(renderLlmsTxt(siteOf(dir)), /- \[Empty\]\(https:\/\/example.com\/docs\/empty\.md\)\n/);
 });
+
+test('entry title falls back to the path without .md', () => {
+  const dir = makeDocs({ 'README.md': 'No h1 here.\n\nWords.\n', 'guide/no-h1.md': 'Body only.\n' });
+  const pages = siteOf(dir).groups.flatMap((group) => group.pages);
+  const guide = pages.find((page) => page.rel === 'guide/no-h1.md');
+  assert.equal(guide.title, 'guide/no-h1');
+});
