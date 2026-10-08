@@ -55,3 +55,14 @@ test('skips folders whose names start with an underscore', () => {
   });
   assert.deepEqual(listPages(dir).map((page) => page.rel), ['guide/ok.md']);
 });
+
+test('skips README.md and index.md by exact basename at any depth', () => {
+  const dir = makeDocs({
+    'README.md': '# R\n',
+    'index.md': '# I\n',
+    'guide/README.md': '# GR\n',
+    'guide/index.md': '# GI\n',
+    'guide/page.md': '# P\n',
+  });
+  assert.deepEqual(listPages(dir).map((page) => page.rel), ['guide/page.md']);
+});
