@@ -81,3 +81,13 @@ test('dir defaults to docs and an extra positional fails', () => {
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /\[tocsify\] error: too many arguments/);
 });
+
+test('--file and -f set the toc path', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  const result = runCli(['--no-llm', '--file', 'out/toc.md'], dir);
+  assert.equal(result.status, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'out/toc.md')), true);
+  const short = runCli(['--no-llm', '-f', 'out/other.md'], dir);
+  assert.equal(short.status, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'out/other.md')), true);
+});
