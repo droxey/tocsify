@@ -11,7 +11,8 @@ function listPages(docsDir, { exclude = [] } = {}) {
     const abs = path.resolve(docsDir, rel);
     if (!fs.statSync(abs).isFile()) continue;
     if (rel.split('/').some((seg) => seg.startsWith('_'))) continue;
-    if (rel.includes('README.md') || rel.includes('index.md')) continue;
+    const base = path.posix.basename(rel);
+    if (base === 'README.md' || base === 'index.md') continue;
     pages.push({ rel, abs });
   }
   pages.sort((a, b) => a.rel.localeCompare(b.rel, 'en'));

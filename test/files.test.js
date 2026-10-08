@@ -66,3 +66,14 @@ test('skips README.md and index.md by exact basename at any depth', () => {
   });
   assert.deepEqual(listPages(dir).map((page) => page.rel), ['guide/page.md']);
 });
+
+test('keeps subindex.md and readme-notes.md', () => {
+  const dir = makeDocs({
+    'subindex.md': '# S\n',
+    'readme-notes.md': '# R\n',
+  });
+  assert.deepEqual(listPages(dir).map((page) => page.rel), [
+    'readme-notes.md',
+    'subindex.md',
+  ]);
+});
