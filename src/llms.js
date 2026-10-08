@@ -335,11 +335,45 @@ function stripIgnoreMarkers(text) {
     .replace(/[ \t]*\{docsify-ignore(?:-all)?\}/g, '');
 }
 
+// Docsify 5 with relativePath: false (checked in headless Chrome against docsify@5.0.0):
+// markdown links load from the docs root, markdown images load from the routed page's folder,
+// and raw HTML src and href resolve against index.html, which is the docs root.
+function fileFolder(rel) {
+  const dir = path.posix.dirname(rel);
+  return dir === '.' ? '' : dir;
+}
+
+function absolute(url, baseUrl, folder) {
+  return new URL(url, `${baseUrl}${folder ? `${folder}/` : ''}`).href;
+}
+
+function linkTarget(url, ctx) {
+  return absolute(url, ctx.baseUrl, '');
+}
+
+const DEST = '([^)\\s]+)';
+const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
+
+function mapDest(dest, target, ctx) {
+  return target(dest, ctx);
+}
+
+function rewritePlain(text, ctx) {
+  const link = (url) => mapDest(url, linkTarget, ctx);
+  let next = text.replace(LINK, (full, label, url, rest) => `[${label}](${link(url)}${rest})`);
+  return next;
+}
+
+function processBody(page, site, options) {
+  const text = stripFrontMatterAndFirstH1(readText(page.abs));
+  return rewritePlain(stripIgnoreMarkers(text), { baseUrl: site.baseUrl }).trim();
+}
+
 function renderLlmsFull(site, { keepComments = false, onWarn } = {}) {
   const warn = onWarn || noop;
   const pages = site.groups.flatMap((group) => group.pages);
   const blocks = pages.map((page) => {
-    const body = stripIgnoreMarkers(stripFrontMatterAndFirstH1(readText(page.abs))).trim();
+    const body = processBody(page, site, { keepComments, onWarn: warn });
     return `# ${page.title}\nSource: ${page.url}\n\n${body}`;
   });
   return `${blocks.join('\n\n')}\n`;

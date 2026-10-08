@@ -506,3 +506,15 @@ test('both ignore-marker forms are stripped', () => {
   assert.equal(full.includes('docsify-ignore'), false);
   assert.match(full, /Keep this\./);
 });
+
+test('relative markdown links resolve from the docs root, as Docsify does', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[other](other.md) [dot](./guide/next.md) [up](../top.md) [titled](other.md "Other page")\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /\[other\]\(https:\/\/example\.com\/docs\/other\.md\)/);
+  assert.match(full, /\[dot\]\(https:\/\/example\.com\/docs\/guide\/next\.md\)/);
+  assert.match(full, /\[up\]\(https:\/\/example\.com\/top\.md\)/);
+  assert.match(full, /\[titled\]\(https:\/\/example\.com\/docs\/other\.md "Other page"\)/);
+});
