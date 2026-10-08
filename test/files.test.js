@@ -104,3 +104,12 @@ test('ignores files that do not end in .md', () => {
   });
   assert.deepEqual(listPages(dir).map((page) => page.rel), ['page.md']);
 });
+
+test('findHomePage prefers README.md, then index.md, then returns null', () => {
+  const both = makeDocs({ 'README.md': '# R\n', 'index.md': '# I\n' });
+  const indexOnly = makeDocs({ 'index.md': '# I\n' });
+  const empty = makeDocs({ 'page.md': '# P\n' });
+  assert.equal(findHomePage(both), 'README.md');
+  assert.equal(findHomePage(indexOnly), 'index.md');
+  assert.equal(findHomePage(empty), null);
+});

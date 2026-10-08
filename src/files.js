@@ -20,5 +20,9 @@ function listPages(docsDir, { exclude = [] } = {}) {
   pages.sort((a, b) => a.rel.localeCompare(b.rel, 'en'));
   return pages;
 }
-function findHomePage() { return null; }
+function findHomePage(docsDir) {
+  if (fs.existsSync(path.join(docsDir, 'README.md'))) return 'README.md';
+  if (fs.existsSync(path.join(docsDir, 'index.md'))) return 'index.md';
+  return null;
+}
 module.exports = { listPages, findHomePage };
