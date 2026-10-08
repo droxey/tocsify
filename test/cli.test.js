@@ -192,3 +192,12 @@ test('git remote detection works in a temp git repo', () => {
   const llms = fs.readFileSync(path.join(dir, 'docs/llms.txt'), 'utf8');
   assert.match(llms, /https:\/\/owner\.github\.io\/Repo\//);
 });
+
+test('the success line names each written file', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  const full = runCli(['--base-url=https://example.com/docs/'], dir);
+  assert.equal(full.status, 0);
+  assert.match(full.stdout, /\[tocsify\] wrote docs\/toc.md, docs\/llms.txt, docs\/llms-full.txt\n$/);
+  const only = runCli(['--no-llm', '--file=docs/only.md'], dir);
+  assert.match(only.stdout, /\[tocsify\] wrote docs\/only.md\n$/);
+});
