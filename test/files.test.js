@@ -77,3 +77,12 @@ test('keeps subindex.md and readme-notes.md', () => {
     'subindex.md',
   ]);
 });
+
+test('skips the excluded output file by resolved path', () => {
+  const dir = makeDocs({
+    'toc.md': '# T\n',
+    'other.md': '# O\n',
+  });
+  const pages = listPages(dir, { exclude: [path.join(dir, 'toc.md')] });
+  assert.deepEqual(pages.map((page) => page.rel), ['other.md']);
+});
