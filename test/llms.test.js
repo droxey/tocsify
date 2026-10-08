@@ -43,3 +43,10 @@ test('--base-url wins and gains a trailing slash', () => {
     flag: 'https://example.com/docs/', docsDir: dir, cwd: dir, env: {}, gitRemote: () => '',
   }), 'https://example.com/docs/');
 });
+
+test('rejects a --base-url that is not http or https', () => {
+  const dir = makeDocs({});
+  assert.throws(() => resolveBaseUrl({
+    flag: 'ftp://example.com', docsDir: dir, cwd: dir, env: {}, gitRemote: () => '',
+  }), /--base-url must start with http:\/\/ or https:\/\//);
+});
