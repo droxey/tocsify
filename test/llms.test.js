@@ -64,3 +64,10 @@ test('maps GITHUB_REPOSITORY to a project site URL', () => {
     docsDir: dir, cwd: dir, env: { GITHUB_REPOSITORY: 'Owner/Repo' }, gitRemote: () => '',
   }), 'https://owner.github.io/Repo/');
 });
+
+test('maps GITHUB_REPOSITORY to a user site URL', () => {
+  const dir = makeDocs({});
+  assert.equal(resolveBaseUrl({
+    docsDir: dir, cwd: dir, env: { GITHUB_REPOSITORY: 'Owner/Owner.github.io' }, gitRemote: () => '',
+  }), 'https://owner.github.io/');
+});

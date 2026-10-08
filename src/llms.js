@@ -18,6 +18,7 @@ function resolveBaseUrl({ flag, docsDir, env = {} }) {
     const slash = repo.indexOf('/');
     const owner = repo.slice(0, slash).toLowerCase();
     const name = repo.slice(slash + 1);
+    if (name.toLowerCase() === `${owner}.github.io`) return `https://${owner}.github.io/`;
     return `https://${owner}.github.io/${name}/`;
   }
   throw new Error('no base url');
