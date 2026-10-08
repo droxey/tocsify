@@ -149,3 +149,14 @@ test('a missing docs folder exits 1', () => {
   assert.equal(file.status, 1);
   assert.match(file.stderr, /docs folder not found: not-a-dir/);
 });
+
+test('a missing base URL exits 1 and names --base-url', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n' });
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-cli-none-'));
+  fs.cpSync(path.join(dir, 'docs'), path.join(outside, 'docs'), { recursive: true });
+  const result = runCli(['docs'], outside);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /\[tocsify\] error: could not detect the site URL/);
+  assert.match(result.stderr, /--base-url/);
+  assert.equal(fs.existsSync(path.join(outside, 'docs/toc.md')), false);
+});
