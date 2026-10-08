@@ -82,6 +82,10 @@ function run(argv, {
     stdout.write(`${pkg.version}\n`);
     return 0;
   }
+  if (parsed.positionals.length > 1) {
+    stderr.write('[tocsify] error: too many arguments\n');
+    return 1;
+  }
   const dirArg = parsed.positionals[0] || 'docs';
   const docsDir = path.resolve(cwd, dirArg);
   const fileAbs = path.resolve(cwd, parsed.values.file);

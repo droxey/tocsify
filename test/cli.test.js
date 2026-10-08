@@ -71,3 +71,13 @@ test('--no-llm writes only toc.md and needs no base URL', () => {
   assert.equal(fs.existsSync(path.join(dir, 'docs/llms.txt')), false);
   assert.equal(fs.existsSync(path.join(dir, 'docs/llms-full.txt')), false);
 });
+
+test('dir defaults to docs and an extra positional fails', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  const ok = runCli(['--no-llm'], dir);
+  assert.equal(ok.status, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), true);
+  const bad = runCli(['docs', 'extra', '--no-llm'], dir);
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /\[tocsify\] error: too many arguments/);
+});
