@@ -329,11 +329,17 @@ function stripFrontMatterAndFirstH1(text) {
   return lines.join('\n');
 }
 
+function stripIgnoreMarkers(text) {
+  return text
+    .replace(/[ \t]*<!--\s*\{docsify-ignore(?:-all)?\}\s*-->/g, '')
+    .replace(/[ \t]*\{docsify-ignore(?:-all)?\}/g, '');
+}
+
 function renderLlmsFull(site, { keepComments = false, onWarn } = {}) {
   const warn = onWarn || noop;
   const pages = site.groups.flatMap((group) => group.pages);
   const blocks = pages.map((page) => {
-    const body = stripFrontMatterAndFirstH1(readText(page.abs)).trim();
+    const body = stripIgnoreMarkers(stripFrontMatterAndFirstH1(readText(page.abs))).trim();
     return `# ${page.title}\nSource: ${page.url}\n\n${body}`;
   });
   return `${blocks.join('\n\n')}\n`;

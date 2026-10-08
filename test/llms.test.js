@@ -497,3 +497,12 @@ test('front matter and the first H1 are removed from each body', () => {
   assert.match(full, /# Real\nSource:/);
   assert.match(full, /After\./);
 });
+
+test('both ignore-marker forms are stripped', () => {
+  const dir = makeDocs({
+    'README.md': '# Home {docsify-ignore}\n\nKeep <!-- {docsify-ignore-all} --> this.\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.equal(full.includes('docsify-ignore'), false);
+  assert.match(full, /Keep this\./);
+});
