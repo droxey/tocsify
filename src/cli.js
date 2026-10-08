@@ -63,7 +63,7 @@ function run(argv, {
   let parsed;
   try {
     parsed = parseArgs({
-      args: argv,
+      args: rewriteHeaderArgs(argv),
       strict: true,
       allowNegative: true,
       allowPositionals: true,

@@ -108,3 +108,16 @@ test('--maxdepth and -m set the depth and reject 0, 7, and 2.5', () => {
     assert.match(bad.stderr, /--maxdepth must be an integer from 1 to 6/);
   }
 });
+
+test('--no-header and --header=false drop ### and --header=true keeps it', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  const off = runCli(['--no-llm', '--no-header', '--file=off.md'], dir);
+  assert.equal(off.status, 0);
+  assert.equal(fs.readFileSync(path.join(dir, 'off.md'), 'utf8').includes('### '), false);
+  const falseFlag = runCli(['--no-llm', '--header=false', '--file=false.md'], dir);
+  assert.equal(falseFlag.status, 0);
+  assert.equal(fs.readFileSync(path.join(dir, 'false.md'), 'utf8').includes('### '), false);
+  const on = runCli(['--no-llm', '--header=true', '--file=on.md'], dir);
+  assert.equal(on.status, 0);
+  assert.match(fs.readFileSync(path.join(dir, 'on.md'), 'utf8'), /^### \[guide\]\(guide\.md\)/m);
+});
