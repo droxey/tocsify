@@ -836,3 +836,15 @@ test('other :type values and :fragment includes stay links', () => {
   assert.match(full, /\[other\]\(https:\/\/example\.com\/docs\/guide\.md ':include :type=html'\)/);
   assert.match(full, /\[notes\]\(https:\/\/example\.com\/docs\/notes\.txt ':include'\)/);
 });
+
+test('HTML comments are stripped outside code, in inlined content, and across lines', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHello <!-- hidden --> world.\n\n<!--\nmulti\nline\n-->\n\n[part](_parts/part.md \':include\')\n',
+    '_parts/part.md': 'Before <!-- secret --> after.\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.equal(full.includes('hidden'), false);
+  assert.equal(full.includes('multi'), false);
+  assert.equal(full.includes('secret'), false);
+  assert.match(full, /Before {2}after\./);
+});

@@ -572,7 +572,7 @@ function renderInclude(link, ctx) {
   if (mode === 'code') {
     return codeFence(readText(resolved.abs), path.posix.extname(resolved.rel).slice(1));
   }
-  const included = readText(resolved.abs);
+  const included = stripIgnoreMarkers(readText(resolved.abs)).replace(/<!--[\s\S]*?-->/g, '');
   return transform(included, { ...ctx, inlined: true });
 }
 
@@ -604,7 +604,7 @@ function transform(text, ctx) {
 }
 
 function processBody(page, site, options) {
-  const text = stripFrontMatterAndFirstH1(readText(page.abs));
+  const text = stripIgnoreMarkers(stripFrontMatterAndFirstH1(readText(page.abs))).replace(/<!--[\s\S]*?-->/g, '');
   return transform(text, {
     docsDir: site.docsDir,
     baseUrl: site.baseUrl,
