@@ -124,3 +124,16 @@ test('uses package.json homepage without its hash or query', () => {
     docsDir: bare, cwd: bare, env: {}, gitRemote: () => '',
   }), 'https://example.com/app/');
 });
+
+test('follows the order CNAME, GITHUB_REPOSITORY, git remote, homepage', () => {
+  const dir = makeDocs({
+    CNAME: 'cname.example\n',
+    'package.json': JSON.stringify({ homepage: 'https://home.example/' }),
+  });
+  assert.equal(resolveBaseUrl({
+    docsDir: dir,
+    cwd: dir,
+    env: { GITHUB_REPOSITORY: 'Owner/Repo' },
+    gitRemote: () => 'https://github.com/Other/Other.git',
+  }), 'https://cname.example/');
+});
