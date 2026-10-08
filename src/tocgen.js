@@ -19,7 +19,7 @@ function renderToc(pages, { maxdepth = 6, header = true } = {}) {
     for (const heading of parsed.headings) {
       if (heading.level > maxdepth) continue;
       if (heading.ignore) continue;
-      if (heading.level === 1 && heading.id === fileSlug) continue;
+      if (heading.id === fileSlug) continue;
       const depth = heading.level - minLevel;
       const indent = '  '.repeat(depth);
       const bullet = BULLETS[depth % 3];

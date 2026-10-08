@@ -80,3 +80,11 @@ test('leaves out pages with either ignore-all form', () => {
   assert.equal(toc.includes('comment'), false);
   assert.equal(toc.includes('kept'), true);
 });
+
+test('leaves out a heading whose id equals the file-name slug', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-slug-'));
+  const page = writePage(dir, 'setup.md', '# Intro\n## Setup\n');
+  const toc = renderToc([page], { header: false });
+  assert.equal(toc.includes('#setup)'), false);
+  assert.equal(toc.includes('#intro)'), true);
+});
