@@ -53,3 +53,12 @@ test('--version prints the package.json version', () => {
   assert.equal(result.status, 0);
   assert.equal(result.stdout, `${pkg.version}\n`);
 });
+
+test('a default run writes toc.md, llms.txt, and llms-full.txt', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n', 'docs/README.md': '# Home\n\nWelcome.\n' });
+  const result = runCli(['--base-url=https://example.com/docs/'], dir);
+  assert.equal(result.status, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), true);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/llms.txt')), true);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/llms-full.txt')), true);
+});
