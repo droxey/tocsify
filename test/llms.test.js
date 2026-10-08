@@ -291,3 +291,10 @@ test('h2 grouping puts root pages under ## Docs and one H2 per folder in toc ord
   assert.match(text, /## guide\/parts\n\n- \[Part\]/);
   assert.match(text, /## guide\n\n- \[Setup\]/);
 });
+
+test('explicit --group=h2 equals the default', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n\nHi.\n', 'guide/a.md': '# A\n\nText.\n' });
+  const one = siteOf(dir);
+  const two = siteOf(dir, { group: 'h2' });
+  assert.deepEqual(one.groups.map((group) => group.name), two.groups.map((group) => group.name));
+});
