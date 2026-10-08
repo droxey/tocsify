@@ -68,13 +68,12 @@ function parse(markdown) {
       continue;
     }
     const idMatch = raw.match(/(?:^|\s):id=(\S+)/);
-    const idSeen = /\{docsify-ignore/.test(raw) ? new Map() : seen;
     headings.push({
       level,
       raw,
       text: raw,
-      id: slugify(idMatch ? idMatch[1] : raw, idSeen),
-      ignore: false,
+      id: slugify(idMatch ? idMatch[1] : raw, seen),
+      ignore: /\{docsify-ignore\}/.test(raw),
       ignoreAll: false,
     });
   }

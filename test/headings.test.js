@@ -72,3 +72,23 @@ test('duplicate headings get -1 and -2 suffixes', () => {
     'duplicate-2',
   ]);
 });
+
+test('ignored and deep headings count toward duplicate numbering', () => {
+  const parsed = parse([
+    '# Duplicate',
+    '# Duplicate {docsify-ignore}',
+    '# Duplicate {docsify-ignore}',
+    '###### Duplicate',
+    '# Duplicate',
+  ].join('\n'));
+  assert.deepEqual(parsed.headings.map((heading) => heading.id), [
+    'duplicate',
+    'duplicate-docsify-ignore',
+    'duplicate-docsify-ignore-1',
+    'duplicate-1',
+    'duplicate-2',
+  ]);
+  assert.equal(parsed.headings[1].ignore, true);
+  assert.equal(parsed.headings[2].ignore, true);
+  assert.equal(parsed.headings[3].level, 6);
+});
