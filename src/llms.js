@@ -484,9 +484,10 @@ function outsideCode(text, fn) {
 function includeMode(url, title) {
   const typeMatch = title.match(/:type=(\S+)/);
   const type = typeMatch ? typeMatch[1] : '';
+  if (title.includes(':fragment=') || (type && type !== 'markdown' && type !== 'code')) return 'link';
   if (type === 'code') return 'code';
   const clean = url.split('#')[0].split('?')[0];
-  if (type === 'markdown' || (!type && /\.(md|markdown)$/i.test(clean))) return 'markdown';
+  if (type === 'markdown' || /\.(md|markdown)$/i.test(clean)) return 'markdown';
   return 'link';
 }
 

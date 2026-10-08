@@ -815,3 +815,24 @@ test(':type=code includes go in a fence with a longer fence when needed', () => 
   assert.match(full, /````js\nconst sample = "```";\nconsole.log\('hi'\);\n````/);
   assert.match(full, /```txt\nno ticks\n```/);
 });
+
+test('other :type values and :fragment includes stay links', () => {
+  const dir = makeDocs({
+    'README.md': [
+      '# Home',
+      '',
+      '[frag](guide.md \':include :fragment=part\')',
+      '',
+      '[other](guide.md \':include :type=html\')',
+      '',
+      '[notes](notes.txt \':include\')',
+    ].join('\n'),
+    'guide.md': '# Guide <!-- {docsify-ignore-all} -->\n\nNope.\n',
+    'notes.txt': 'plain\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.equal(full.includes('Nope.'), false);
+  assert.match(full, /\[frag\]\(https:\/\/example\.com\/docs\/guide\.md ':include :fragment=part'\)/);
+  assert.match(full, /\[other\]\(https:\/\/example\.com\/docs\/guide\.md ':include :type=html'\)/);
+  assert.match(full, /\[notes\]\(https:\/\/example\.com\/docs\/notes\.txt ':include'\)/);
+});
