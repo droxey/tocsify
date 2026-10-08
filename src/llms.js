@@ -90,11 +90,13 @@ function resolveBaseUrl({
 function withSlash(baseUrl) {
   return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 }
+
 function pageTitle(rel, parsed) {
   const h1 = parsed.headings.find((heading) => heading.level === 1);
   if (h1) return h1.text;
   return rel.replace(/\.md$/, '');
 }
+
 function pageDescription(parsed) {
   const line = parsed.frontmatter.split('\n').find((item) => item.startsWith('description:'));
   if (line) {
@@ -114,13 +116,15 @@ function makePage(rel, abs, baseUrl) {
   const parsed = parse(readText(abs));
   const root = withSlash(baseUrl);
   return {
-    rel, abs,
+    rel,
+    abs,
     url: new URL(encodeURI(rel), root).href,
     title: pageTitle(rel, parsed),
     description: pageDescription(parsed),
     ignoreAll: parsed.headings.some((heading) => heading.ignoreAll),
   };
 }
+
 function groupByH2(pages) {
   const groups = [];
   const index = new Map();
@@ -136,6 +140,54 @@ function groupByH2(pages) {
   }
   return groups;
 }
+
+function parseSidebar(text) {
+  const sections = [];
+  let current = null;
+  for (const line of text.split('\n')) {
+    const match = line.match(/^(\s*)[-*+]\s+(.*)$/);
+    if (!match) continue;
+    const indent = match[1].length;
+    const body = match[2].trim();
+    const link = body.match(/^\[([^\]]*)\]\(([^)]+)\)$/);
+    if (indent === 0 && !link) {
+      current = { name: body, links: [] };
+      sections.push(current);
+      continue;
+    }
+    if (!link) continue;
+    if (!current) {
+      current = { name: 'Docs', links: [] };
+      sections.unshift(current);
+    }
+    current.links.push(link[2].trim());
+  }
+  return sections;
+}
+
+function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
+  const sidebarPath = path.join(docsDir, '_sidebar.md');
+  const sections = parseSidebar(readText(sidebarPath));
+  const groups = [];
+  function bucket(name) {
+    let group = groups.find((item) => item.name === name);
+    if (!group) {
+      group = { name, pages: [] };
+      groups.push(group);
+    }
+    return group;
+  }
+  for (const section of sections) {
+    for (const target of section.links) {
+      const resolved = { rel: target };
+      const abs = path.resolve(docsDir, resolved.rel);
+      const page = makePage(resolved.rel, abs, baseUrl);
+      bucket(section.name).pages.push(page);
+    }
+  }
+  return groups.filter((group) => group.pages.length > 0);
+}
+
 function collectH2Pages(docsDir, baseUrl, exclude) {
   const excluded = new Set(exclude.map((item) => path.resolve(item)));
   const pages = [];
@@ -149,15 +201,21 @@ function collectH2Pages(docsDir, baseUrl, exclude) {
   }
   return pages.filter((page) => !page.ignoreAll);
 }
-function buildSite({ docsDir, baseUrl, exclude = [], title, summary, cwd }) {
-  const root = withSlash(baseUrl || '');
-  const pages = collectH2Pages(docsDir, root, exclude);
-  const groups = groupByH2(pages);
-  let resolvedTitle = title || '';
-  let resolvedSummary = summary || '';
-  const home = findHomePage(docsDir);
+
+function buildSite({
+  docsDir, baseUrl, exclude = [], group = 'h2', title, summary, onWarn, cwd,
+}) {
+  const warn = onWarn || noop;
+  const root = withSlash(baseUrl);
+  const groups = group === 'sidebar'
+    ? groupBySidebar(docsDir, root, exclude, warn)
+    : groupByH2(collectH2Pages(docsDir, root, exclude));
+  const homeRel = findHomePage(docsDir);
   let homeParsed = null;
-  if (home && fs.existsSync(path.join(docsDir, home))) homeParsed = parse(readText(path.join(docsDir, home)));
+  if (homeRel && fs.existsSync(path.join(docsDir, homeRel))) {
+    homeParsed = parse(readText(path.join(docsDir, homeRel)));
+  }
+  let resolvedTitle = title;
   if (!resolvedTitle) {
     const h1 = homeParsed && homeParsed.headings.find((heading) => heading.level === 1);
     if (h1 && h1.text) resolvedTitle = h1.text;
@@ -167,9 +225,29 @@ function buildSite({ docsDir, baseUrl, exclude = [], title, summary, cwd }) {
     if (pkg && typeof pkg.name === 'string' && pkg.name) resolvedTitle = pkg.name;
   }
   if (!resolvedTitle) resolvedTitle = path.basename(docsDir);
-  if (!summary) resolvedSummary = homeParsed && homeParsed.firstParagraph ? homeParsed.firstParagraph : '';
-  return { title: resolvedTitle, summary: resolvedSummary, baseUrl: root, docsDir, groups };
+  let resolvedSummary = summary || '';
+  if (!summary) {
+    resolvedSummary = homeParsed && homeParsed.firstParagraph ? homeParsed.firstParagraph : '';
+  }
+  const publicGroups = groups.map((item) => ({
+    name: item.name,
+    pages: item.pages.map((page) => ({
+      rel: page.rel,
+      abs: page.abs,
+      url: page.url,
+      title: page.title,
+      description: page.description,
+    })),
+  }));
+  return {
+    title: resolvedTitle,
+    summary: resolvedSummary,
+    baseUrl: root,
+    docsDir,
+    groups: publicGroups,
+  };
 }
+
 function renderLlmsTxt(site) {
   let out = `# ${site.title}\n`;
   if (site.summary) out += `\n> ${site.summary}\n`;
@@ -182,5 +260,14 @@ function renderLlmsTxt(site) {
   }
   return out;
 }
+
+function noop() {}
+
 function renderLlmsFull() { throw new Error('later'); }
-module.exports = { resolveBaseUrl, buildSite, renderLlmsTxt, renderLlmsFull };
+
+module.exports = {
+  resolveBaseUrl,
+  buildSite,
+  renderLlmsTxt,
+  renderLlmsFull,
+};

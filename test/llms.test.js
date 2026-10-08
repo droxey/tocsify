@@ -298,3 +298,26 @@ test('explicit --group=h2 equals the default', () => {
   const two = siteOf(dir, { group: 'h2' });
   assert.deepEqual(one.groups.map((group) => group.name), two.groups.map((group) => group.name));
 });
+
+test('sidebar grouping follows _sidebar.md sections and order', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'about.md': '# About\n\nAbout text.\n',
+    'guide/setup.md': '# Setup\n\nInstall.\n',
+    'guide/deep.md': '# Deep\n\nNested.\n',
+    'unlinked.md': '# Unlinked\n\nNot in the sidebar.\n',
+    '_sidebar.md': [
+      '- [Home](README.md)',
+      '- [About](about.md)',
+      '- Guide',
+      '  - [Setup](guide/setup.md)',
+      '    - [Deep](guide/deep.md)',
+      '  - plain nested item',
+    ].join('\n'),
+  });
+  const site = siteOf(dir, { group: 'sidebar' });
+  assert.deepEqual(site.groups.map((group) => group.name), ['Docs', 'Guide']);
+  assert.deepEqual(site.groups[0].pages.map((page) => page.rel), ['README.md', 'about.md']);
+  assert.deepEqual(site.groups[1].pages.map((page) => page.rel), ['guide/setup.md', 'guide/deep.md']);
+  assert.match(renderLlmsTxt(site), /## Guide\n\n- \[Setup\]\(https:\/\/example\.com\/docs\/guide\/setup\.md\): Install\.\n- \[Deep\]/);
+});
