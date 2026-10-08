@@ -25,7 +25,7 @@ function mapRemote(url) {
 }
 function defaultGitRemote(cwd) {
   const result = spawnSync('git', ['config', '--get', 'remote.origin.url'], { cwd, encoding: 'utf8' });
-  if (result.status !== 0) throw new Error('git failed');
+  if (result.status !== 0) return '';
   return result.stdout.trim();
 }
 function resolveBaseUrl({ flag, docsDir, cwd, env = {}, gitRemote = defaultGitRemote }) {
@@ -42,6 +42,10 @@ function resolveBaseUrl({ flag, docsDir, cwd, env = {}, gitRemote = defaultGitRe
   const remote = gitRemote(cwd);
   const mapped = remote ? mapRemote(remote) : '';
   if (mapped) return mapped;
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(cwd, 'package.json'), 'utf8'));
+    if (pkg && typeof pkg.homepage === 'string' && /^https?:\/\//i.test(pkg.homepage)) return pkg.homepage;
+  } catch (err) { /* no package */ }
   throw new Error('no base url');
 }
 

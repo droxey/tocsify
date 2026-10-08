@@ -91,3 +91,21 @@ test('maps https, git@, and ssh GitHub remotes', () => {
     docsDir: gitDir, cwd: gitDir, env: {},
   }), 'https://owner.github.io/Live/');
 });
+
+test('ignores a failed git command and a non-GitHub remote', () => {
+  const dir = makeDocs({});
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-nogit-'));
+  fs.writeFileSync(
+    path.join(outside, 'package.json'),
+    JSON.stringify({ homepage: 'https://from-pkg.example/docs/' }),
+  );
+  assert.equal(resolveBaseUrl({
+    docsDir: dir, cwd: outside, env: {},
+  }), 'https://from-pkg.example/docs/');
+  const pkgDir = makeDocs({
+    'package.json': JSON.stringify({ homepage: 'https://from-pkg.example/docs/' }),
+  });
+  assert.equal(resolveBaseUrl({
+    docsDir: pkgDir, cwd: pkgDir, env: {}, gitRemote: () => 'https://gitlab.com/a/b.git',
+  }), 'https://from-pkg.example/docs/');
+});
