@@ -105,3 +105,11 @@ test('a page with no listed headings gets only its link and a blank line', () =>
   const page = writePage(dir, 'blank.md', 'Just a paragraph.\n');
   assert.equal(renderToc([page], { header: false }), '[blank](blank.md)\n\n');
 });
+
+test('anchors use Docsify 5 ids such as _1-first-step and café-olé', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-ids-'));
+  const page = writePage(dir, 'edge.md', '# Edge\n## 1. First step\n## Café Olé\n');
+  const toc = renderToc([page], { header: false });
+  assert.match(toc, /edge\.md#_1-first-step\)/);
+  assert.match(toc, /edge\.md#café-olé\)/);
+});
