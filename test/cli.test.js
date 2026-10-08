@@ -45,3 +45,11 @@ test('--help and -h print usage with maxdepth default 6', () => {
   assert.match(HELP, /Default: 6/);
   assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), false);
 });
+
+test('--version prints the package.json version', () => {
+  const dir = makeDocs({});
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const result = runCli(['--version'], dir);
+  assert.equal(result.status, 0);
+  assert.equal(result.stdout, `${pkg.version}\n`);
+});

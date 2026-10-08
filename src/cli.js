@@ -27,9 +27,16 @@ Examples
   $ tocsify docs --no-llm
 `;
 
+const fs = require('fs');
+const path = require('path');
 function run(argv, { stdout }) {
   if (argv.includes('--help') || argv.includes('-h')) {
     stdout.write(HELP);
+    return 0;
+  }
+  if (argv.includes('--version')) {
+    const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+    stdout.write(`${pkg.version}\n`);
     return 0;
   }
   return 0;
