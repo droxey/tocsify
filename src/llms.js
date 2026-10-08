@@ -370,8 +370,15 @@ function linkTarget(url, ctx) {
   return absolute(`${docsifyPagePath(file)}${suffix}`, ctx.baseUrl, '');
 }
 
+function imageTarget(url, ctx) {
+  if (!isRelative(url)) return url;
+  return absolute(url, ctx.baseUrl, fileFolder(ctx.pageRel));
+}
+
 const DEST = '([^)\\s]+)';
 const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
+const IMAGE = new RegExp(`!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
+const BADGE = new RegExp(`\\[!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)\\]\\(${DEST}([^)]*)\\)`, 'g');
 
 function mapDest(dest, target, ctx) {
   return target(dest, ctx);
@@ -379,7 +386,18 @@ function mapDest(dest, target, ctx) {
 
 function rewritePlain(text, ctx) {
   const link = (url) => mapDest(url, linkTarget, ctx);
-  let next = text.replace(LINK, (full, label, url, rest) => `[${label}](${link(url)}${rest})`);
+  const image = (url) => mapDest(url, imageTarget, ctx);
+  const slots = [];
+  const hold = (value) => {
+    slots.push(value);
+    return `%%LLMS_SLOT_${slots.length - 1}%%`;
+  };
+  let next = text.replace(BADGE, (full, alt, src, srcRest, href, hrefRest) => (
+    hold(`[![${alt}](${image(src)}${srcRest})](${link(href)}${hrefRest})`)
+  ));
+  next = next.replace(IMAGE, (full, alt, url, rest) => hold(`![${alt}](${image(url)}${rest})`));
+  next = next.replace(LINK, (full, label, url, rest) => `[${label}](${link(url)}${rest})`);
+  next = next.replace(/%%LLMS_SLOT_(\d+)%%/g, (full, index) => slots[Number(index)]);
   return next;
 }
 

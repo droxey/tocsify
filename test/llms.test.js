@@ -577,3 +577,15 @@ test('a relative link to a non-markdown file keeps its path from the docs root',
   assert.match(full, /\[pdf\]\(https:\/\/example\.com\/docs\/files\/guide\.pdf\)/);
   assert.match(full, /\[archive\]\(https:\/\/example\.com\/docs\/files\/demo\.tar\.gz\)/);
 });
+
+test('markdown images resolve from the page folder, as Docsify does', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\n![root](img/r.png)\n',
+    'guide/setup.md': '# Setup\n\n![pic](./img/a.png) ![up](../img/b.png "B") [![badge](img/badge.svg)](other.md)\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /!\[root\]\(https:\/\/example\.com\/docs\/img\/r\.png\)/);
+  assert.match(full, /!\[pic\]\(https:\/\/example\.com\/docs\/guide\/img\/a\.png\)/);
+  assert.match(full, /!\[up\]\(https:\/\/example\.com\/docs\/img\/b\.png "B"\)/);
+  assert.match(full, /\[!\[badge\]\(https:\/\/example\.com\/docs\/guide\/img\/badge\.svg\)\]\(https:\/\/example\.com\/docs\/other\.md\)/);
+});
