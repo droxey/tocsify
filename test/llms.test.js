@@ -726,3 +726,16 @@ test('a local markdown include is inlined', () => {
   assert.match(full, /\[junk\]\(https:\/\/example\.com\/docs\/file\.md 't' x\)/);
   assert.match(full, /\[bad\]\(https:\/\/example\.com\/docs\/file\.md "noend\) and \[/);
 });
+
+test('inlined content resolves images from the page folder and links from the docs root, as Docsify does', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[part](_parts/part.md \':include\')\n',
+    'guide/_parts/part.md': '![inner](pic.png) [link](next.md) <img src="h.png">\n\n`[skip](no.md)`\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /!\[inner\]\(https:\/\/example\.com\/docs\/guide\/pic\.png\)/);
+  assert.match(full, /\[link\]\(https:\/\/example\.com\/docs\/next\.md\)/);
+  assert.match(full, /<img src="https:\/\/example\.com\/docs\/h\.png">/);
+  assert.match(full, /`\[skip\]\(no\.md\)`/);
+});
