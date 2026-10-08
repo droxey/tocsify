@@ -412,3 +412,36 @@ test('sidebar grouping skips underscore, dot, toc, and ignore-all pages and allo
   });
   assert.deepEqual(site.groups.flatMap((group) => group.pages.map((page) => page.rel)), ['about.md', 'guide/README.md']);
 });
+
+test('sidebar grouping adds the home page when the sidebar does not link it', () => {
+  const created = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\nInstall.\n',
+    '_sidebar.md': '- Guide\n  - [Setup](guide/setup.md)\n',
+  });
+  const createdSite = siteOf(created, { group: 'sidebar' });
+  assert.equal(createdSite.groups[0].name, 'Docs');
+  assert.equal(createdSite.groups[0].pages[0].rel, 'README.md');
+  const existing = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'about.md': '# About\n\nAbout.\n',
+    '_sidebar.md': '- [About](about.md)\n- Later\n  - [About](about.md)\n',
+  });
+  const existingSite = siteOf(existing, { group: 'sidebar' });
+  assert.equal(existingSite.groups[0].name, 'Docs');
+  assert.deepEqual(existingSite.groups[0].pages.map((page) => page.rel), ['README.md', 'about.md']);
+  const hidden = makeDocs({
+    'README.md': '# Home <!-- {docsify-ignore-all} -->\n',
+    'about.md': '# About\n\nAbout.\n',
+    '_sidebar.md': '- [About](about.md)\n',
+  });
+  assert.deepEqual(siteOf(hidden, { group: 'sidebar' }).groups[0].pages.map((page) => page.rel), ['about.md']);
+  const excludedSite = buildSite({
+    docsDir: existing,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(existing, 'README.md')],
+    group: 'sidebar',
+    cwd: existing,
+  });
+  assert.deepEqual(excludedSite.groups[0].pages.map((page) => page.rel), ['about.md']);
+});

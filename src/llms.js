@@ -207,6 +207,21 @@ function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
       bucket(section.name).pages.push(page);
     }
   }
+  const home = findHomePage(docsDir);
+  if (home) {
+    const abs = path.resolve(docsDir, home);
+    if (!seen.has(abs) && !excluded.has(abs)) {
+      const page = makePage(home, abs, baseUrl);
+      if (!page.ignoreAll) {
+        let docs = groups.find((item) => item.name === 'Docs');
+        if (!docs) {
+          docs = { name: 'Docs', pages: [] };
+          groups.unshift(docs);
+        }
+        docs.pages.unshift(page);
+      }
+    }
+  }
   return groups.filter((group) => group.pages.length > 0);
 }
 
