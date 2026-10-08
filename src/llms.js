@@ -167,6 +167,7 @@ function parseSidebar(text) {
 
 function sidebarTarget(target) {
   const clean = target.split('#')[0].split('?')[0].trim();
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(clean)) return { external: true };
   let rel = clean;
   if (rel.startsWith('/')) rel = rel.slice(1);
   if (rel === '' || rel.endsWith('/')) rel += 'README.md';
@@ -189,6 +190,7 @@ function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
   for (const section of sections) {
     for (const target of section.links) {
       const resolved = sidebarTarget(target);
+      if (resolved.external) continue;
       const abs = path.resolve(docsDir, resolved.rel);
       const page = makePage(resolved.rel, abs, baseUrl);
       bucket(section.name).pages.push(page);

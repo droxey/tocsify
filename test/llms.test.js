@@ -341,3 +341,12 @@ test('sidebar links resolve /, folder/, and extensionless paths', () => {
     'guide/README.md',
   ]);
 });
+
+test('sidebar grouping skips external links', () => {
+  const dir = makeDocs({
+    'about.md': '# About\n\nAbout.\n',
+    '_sidebar.md': '- Docs\n  - [About](about.md)\n  - [Out](https://example.com/x)\n  - [Mail](mailto:a@b.c)\n',
+  });
+  const site = siteOf(dir, { group: 'sidebar' });
+  assert.deepEqual(site.groups.flatMap((group) => group.pages.map((page) => page.rel)), ['about.md']);
+});
