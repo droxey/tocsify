@@ -99,3 +99,9 @@ test('indents from the highest level in the file and cycles - * +', () => {
   assert.equal(lines[3], '    + [Four](nested.md#four)');
   assert.equal(lines[4], '      - [Five](nested.md#five)');
 });
+
+test('a page with no listed headings gets only its link and a blank line', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-empty-page-'));
+  const page = writePage(dir, 'blank.md', 'Just a paragraph.\n');
+  assert.equal(renderToc([page], { header: false }), '[blank](blank.md)\n\n');
+});
