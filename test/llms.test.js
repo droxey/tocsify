@@ -780,3 +780,16 @@ test('a missing include warns and stays a link', () => {
   assert.match(quiet, /guide\/missing\.md ':include'/);
   assert.match(full, /\[gone\]\(https:\/\/example\.com\/docs\/gone\.md ':include'\)/);
 });
+
+test('an include outside the docs folder warns and stays a link', () => {
+  const parent = makeDocs({
+    'docs/README.md': '# Home\n\n[out](../secret.md \':include\')\n',
+    'secret.md': 'SECRET_OUTSIDE\n',
+  });
+  const dir = path.join(parent, 'docs');
+  const warnings = [];
+  const full = renderLlmsFull(siteOf(dir), { onWarn: (message) => warnings.push(message) });
+  assert.deepEqual(warnings, ['include is outside the docs folder: ../secret.md']);
+  assert.equal(full.includes('SECRET_OUTSIDE'), false);
+  assert.match(full, /\[out\]\(https:\/\/example\.com\/secret\.md ':include'\)/);
+});
