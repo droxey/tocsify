@@ -484,6 +484,7 @@ function outsideCode(text, fn) {
 function includeMode(url, title) {
   const typeMatch = title.match(/:type=(\S+)/);
   const type = typeMatch ? typeMatch[1] : '';
+  if (type === 'code') return 'code';
   const clean = url.split('#')[0].split('?')[0];
   if (type === 'markdown' || (!type && /\.(md|markdown)$/i.test(clean))) return 'markdown';
   return 'link';
@@ -498,6 +499,19 @@ function resolveLocal(url, ctx) {
   if (relToDocs.startsWith('..')) return { outside: true };
   if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) return { missing: true };
   return { abs, rel: relToDocs.split(path.sep).join('/') };
+}
+
+function codeFence(content, ext) {
+  const ticks = content.match(/`+/g);
+  let longest = 0;
+  if (ticks) {
+    for (const run of ticks) {
+      if (run.length > longest) longest = run.length;
+    }
+  }
+  const fence = '`'.repeat(Math.max(3, longest + 1));
+  const body = content.replace(/\s+$/, '');
+  return `${fence}${ext}\n${body}\n${fence}`;
 }
 
 function findNextLink(text, from) {
@@ -554,6 +568,9 @@ function renderInclude(link, ctx) {
     return includeLink(link, ctx);
   }
   if (mode === 'link') return includeLink(link, ctx);
+  if (mode === 'code') {
+    return codeFence(readText(resolved.abs), path.posix.extname(resolved.rel).slice(1));
+  }
   const included = readText(resolved.abs);
   return transform(included, { ...ctx, inlined: true });
 }

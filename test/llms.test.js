@@ -804,3 +804,14 @@ test('remote http and https includes stay links', () => {
   assert.match(full, /\[a\]\(https:\/\/example.com\/a.md ':include'\)/);
   assert.match(full, /\[b\]\(http:\/\/example.com\/b.md ':include'\)/);
 });
+
+test(':type=code includes go in a fence with a longer fence when needed', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\n[code](widget.js \':include :type=code\')\n\n[plain](plain.txt \':include :type=code\')\n',
+    'widget.js': 'const sample = "```";\nconsole.log(\'hi\');\n',
+    'plain.txt': 'no ticks\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /````js\nconst sample = "```";\nconsole.log\('hi'\);\n````/);
+  assert.match(full, /```txt\nno ticks\n```/);
+});
