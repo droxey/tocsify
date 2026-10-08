@@ -669,3 +669,26 @@ test('unquoted src and href values are rewritten', () => {
   assert.match(full, /<img src=https:\/\/example\.com\/docs\/img\/x\.png alt=x>/);
   assert.match(full, /<a href=#top>top<\/a>/);
 });
+
+test('llms.txt descriptions render [text][ref] links as plain text', () => {
+  const dir = makeDocs({
+    'README.md': [
+      '# Home',
+      '',
+      '[![npm][badge]][npm] See [the guide][g] and ![logo][l] now. More.',
+      '',
+      '[g]: guide.md',
+      '[l]: logo.png',
+      '[badge]: https://img.shields.io/npm/v/x.svg',
+      '[npm]: https://www.npmjs.com/package/x',
+    ].join('\n'),
+    'refs.md': '# Refs\n\n[a]: a.md\n\nReal text here.\n',
+    'badges.md': '# Badges\n\n[![npm][badge]][npm]\n\nAfter the badge.\n\n[badge]: https://img.shields.io/npm/v/x.svg\n[npm]: https://www.npmjs.com/package/x\n',
+  });
+  const site = siteOf(dir);
+  const pages = site.groups.flatMap((group) => group.pages);
+  assert.equal(site.summary, 'See the guide and now. More.');
+  assert.equal(pages.find((page) => page.rel === 'README.md').description, 'See the guide and now.');
+  assert.equal(pages.find((page) => page.rel === 'refs.md').description, 'Real text here.');
+  assert.equal(pages.find((page) => page.rel === 'badges.md').description, 'After the badge.');
+});

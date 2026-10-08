@@ -71,10 +71,14 @@ function hasIgnoreAll(raw) {
   return /\{docsify-ignore-all\}/.test(raw);
 }
 
+// A target is an inline (url) or a reference [label], so badges and images in either form count as media.
+const BADGE = /\[!\[[^\]]*\](?:\([^)]*\)|\[[^\]]*\])\](?:\([^)]*\)|\[[^\]]*\])/g;
+const IMAGE = /!\[[^\]]*\](?:\([^)]*\)|\[[^\]]*\])/g;
+
 function onlyMedia(raw) {
   const left = raw
-    .replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, '')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(BADGE, '')
+    .replace(IMAGE, '')
     .replace(/\[[^\]]*\]\([^)]*:include[^)]*\)/g, '')
     .trim();
   return left.length === 0;
@@ -82,9 +86,9 @@ function onlyMedia(raw) {
 
 function plainText(raw) {
   return raw
-    .replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, '')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(BADGE, '')
+    .replace(IMAGE, '')
+    .replace(/\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])/g, '$1')
     .replace(/`+/g, '')
     .replace(/[*_~]+/g, '')
     .replace(/<[^>]+>/g, '')
@@ -99,6 +103,7 @@ function isStructural(line) {
   if (/^\s*[!?]>\s?/.test(line)) return true;
   if (line.includes('|')) return true;
   if (/^\s*<[^>]+>\s*$/.test(line)) return true;
+  if (/^ {0,3}\[[^\]]+\]:/.test(line)) return true;
   return false;
 }
 
