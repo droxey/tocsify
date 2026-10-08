@@ -589,3 +589,13 @@ test('markdown images resolve from the page folder, as Docsify does', () => {
   assert.match(full, /!\[up\]\(https:\/\/example\.com\/docs\/img\/b\.png "B"\)/);
   assert.match(full, /\[!\[badge\]\(https:\/\/example\.com\/docs\/guide\/img\/badge\.svg\)\]\(https:\/\/example\.com\/docs\/other\.md\)/);
 });
+
+test('img src resolves from the docs root, as the browser does in Docsify', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n<img src="img/b.png" alt="b"> <img alt=\'c\' src=\'./img/c.png\'>\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /<img src="https:\/\/example\.com\/docs\/img\/b\.png" alt="b">/);
+  assert.match(full, /<img alt='c' src='https:\/\/example\.com\/docs\/img\/c\.png'>/);
+});

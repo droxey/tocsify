@@ -375,10 +375,16 @@ function imageTarget(url, ctx) {
   return absolute(url, ctx.baseUrl, fileFolder(ctx.pageRel));
 }
 
+function htmlTarget(url, ctx) {
+  if (!isRelative(url)) return url;
+  return absolute(url, ctx.baseUrl, '');
+}
+
 const DEST = '([^)\\s]+)';
 const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const IMAGE = new RegExp(`!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const BADGE = new RegExp(`\\[!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)\\]\\(${DEST}([^)]*)\\)`, 'g');
+const IMG_SRC = /(<img\b[^>]*\bsrc\s*=\s*)(["'])([^"']+)\2/gi;
 
 function mapDest(dest, target, ctx) {
   return target(dest, ctx);
@@ -398,6 +404,8 @@ function rewritePlain(text, ctx) {
   next = next.replace(IMAGE, (full, alt, url, rest) => hold(`![${alt}](${image(url)}${rest})`));
   next = next.replace(LINK, (full, label, url, rest) => `[${label}](${link(url)}${rest})`);
   next = next.replace(/%%LLMS_SLOT_(\d+)%%/g, (full, index) => slots[Number(index)]);
+  const html = (full, pre, quote, url) => `${pre}${quote}${htmlTarget(url, ctx)}${quote}`;
+  next = next.replace(IMG_SRC, html);
   return next;
 }
 
