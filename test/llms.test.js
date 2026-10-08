@@ -793,3 +793,14 @@ test('an include outside the docs folder warns and stays a link', () => {
   assert.equal(full.includes('SECRET_OUTSIDE'), false);
   assert.match(full, /\[out\]\(https:\/\/example\.com\/secret\.md ':include'\)/);
 });
+
+test('remote http and https includes stay links', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\n[a](https://example.com/a.md \':include\')\n\n[b](http://example.com/b.md \':include\')\n',
+  });
+  const warnings = [];
+  const full = renderLlmsFull(siteOf(dir), { onWarn: (message) => warnings.push(message) });
+  assert.deepEqual(warnings, []);
+  assert.match(full, /\[a\]\(https:\/\/example.com\/a.md ':include'\)/);
+  assert.match(full, /\[b\]\(http:\/\/example.com\/b.md ':include'\)/);
+});

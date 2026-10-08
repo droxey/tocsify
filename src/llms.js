@@ -542,6 +542,7 @@ function includeLink(link, ctx) {
 
 function renderInclude(link, ctx) {
   if (!link.title.includes(':include')) return link.raw;
+  if (!isRelative(link.url)) return link.raw;
   const mode = includeMode(link.url, link.title);
   const resolved = resolveLocal(link.url, ctx);
   if (resolved.outside) {
