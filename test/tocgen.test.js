@@ -69,3 +69,14 @@ test('leaves out headings with either ignore form', () => {
   assert.equal(toc.includes('Hidden'), false);
   assert.equal(toc.includes('Also'), false);
 });
+
+test('leaves out pages with either ignore-all form', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-ignall-'));
+  const plain = writePage(dir, 'plain.md', '# Plain {docsify-ignore-all}\n## Nope\n');
+  const comment = writePage(dir, 'comment.md', '# Comment <!-- {docsify-ignore-all} -->\n## Nope\n');
+  const kept = writePage(dir, 'kept.md', '# Kept\n');
+  const toc = renderToc([plain, comment, kept], { header: false });
+  assert.equal(toc.includes('plain'), false);
+  assert.equal(toc.includes('comment'), false);
+  assert.equal(toc.includes('kept'), true);
+});

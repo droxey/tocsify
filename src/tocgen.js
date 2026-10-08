@@ -10,7 +10,7 @@ function renderToc(pages, { maxdepth = 6, header = true } = {}) {
   let out = '';
   for (const page of pages) {
     const parsed = parse(fs.readFileSync(page.abs, 'utf8'));
-    if (parsed.headings.some((heading) => heading.raw.includes('{docsify-ignore-all}') && !heading.raw.includes('<!--'))) continue;
+    if (parsed.headings.some((heading) => heading.ignoreAll)) continue;
     const base = path.posix.basename(page.rel, '.md');
     const fileSlug = slugify(base, new Map());
     const levels = parsed.headings.map((heading) => heading.level);
