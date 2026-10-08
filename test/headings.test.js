@@ -167,3 +167,31 @@ test('blockquote lines are not headings', () => {
   const parsed = parse('> # Not ATX\n> Quote title\n---\n# Real\n');
   assert.deepEqual(parsed.headings.map((heading) => heading.text), ['Real']);
 });
+
+test('first paragraph skips badge-only lines, notices, lists, and code', () => {
+  const parsed = parse([
+    '```',
+    '# Fake',
+    '```',
+    '## Second',
+    '# Real Title',
+    '',
+    '[![npm](https://img.example/badge.svg)](https://example.com)',
+    '',
+    '!> A notice',
+    '?> A tip',
+    '- a list',
+    '> a quote',
+    '| a | table |',
+    '<br>',
+    '',
+    '```',
+    'code',
+    '```',
+    '',
+    'The real paragraph is here. More text.',
+  ].join('\n'));
+  assert.equal(parsed.firstParagraph, 'The real paragraph is here. More text.');
+  const noH1 = parse('Just words without a stop\n');
+  assert.equal(noH1.firstParagraph, 'Just words without a stop');
+});

@@ -1,5 +1,6 @@
 'use strict';
 
+// Docsify 5 punctuation class from src/core/render/slugify.js (docsify@5.0.0).
 const PUNCT = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g;
 const EMOJI = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
 
@@ -45,7 +46,9 @@ function codeMask(lines) {
   return mask;
 }
 
-
+function normalize(markdown) {
+  return String(markdown).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
 
 function headingText(raw) {
   return raw
@@ -68,8 +71,76 @@ function hasIgnoreAll(raw) {
   return /\{docsify-ignore-all\}/.test(raw);
 }
 
+function onlyMedia(raw) {
+  const left = raw
+    .replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[[^\]]*\]\([^)]*:include[^)]*\)/g, '')
+    .trim();
+  return left.length === 0;
+}
+
+function plainText(raw) {
+  return raw
+    .replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/`+/g, '')
+    .replace(/[*_~]+/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isStructural(line) {
+  if (/^ {0,3}#{1,6}[ \t]/.test(line)) return true;
+  if (/^\s*(?:[-*+]|\d+\.)[ \t]/.test(line)) return true;
+  if (/^\s*>/.test(line)) return true;
+  if (/^\s*[!?]>\s?/.test(line)) return true;
+  if (line.includes('|')) return true;
+  if (/^\s*<[^>]+>\s*$/.test(line)) return true;
+  return false;
+}
+
+function firstParagraph(body) {
+  const lines = body.split('\n');
+  const mask = codeMask(lines);
+  let start = 0;
+  for (let i = 0; i < lines.length; i += 1) {
+    if (mask[i]) continue;
+    const atx = lines[i].match(/^ {0,3}(#{1,6})[ \t]/);
+    if (atx && atx[1].length === 1) {
+      start = i + 1;
+      break;
+    }
+  }
+  const buf = [];
+  function take() {
+    if (!buf.length) return '';
+    const raw = buf.join(' ');
+    buf.length = 0;
+    if (onlyMedia(raw)) return '';
+    return plainText(raw);
+  }
+  for (let i = start; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (mask[i] || isStructural(line)) {
+      const got = take();
+      if (got) return got;
+      continue;
+    }
+    if (!line.trim()) {
+      const got = take();
+      if (got) return got;
+      continue;
+    }
+    buf.push(line.trim());
+  }
+  return take();
+}
+
 function parse(markdown) {
-  const text = String(markdown).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const text = normalize(markdown);
   const fm = text.match(/^---\n([\s\S]*?)\n---\n/);
   const frontmatter = fm ? fm[1] : '';
   const rest = fm ? text.slice(fm[0].length) : text;
@@ -86,7 +157,7 @@ function parse(markdown) {
     let raw;
     if (atx) {
       level = atx[1].length;
-      raw = atx[2].trim();
+      raw = atx[2];
     } else if (
       i + 1 < lines.length
       && !mask[i + 1]
@@ -114,8 +185,12 @@ function parse(markdown) {
     frontmatter,
     body: rest,
     headings,
-    firstParagraph: '',
+    firstParagraph: firstParagraph(rest),
   };
 }
 
-module.exports = { slugify, parse, codeMask };
+module.exports = {
+  slugify,
+  parse,
+  codeMask,
+};
