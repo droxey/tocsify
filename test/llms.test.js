@@ -609,3 +609,16 @@ test('a href resolves from the docs root, as the browser does in Docsify', () =>
   assert.match(full, /<a href="https:\/\/example\.com\/docs\/more\.md">more<\/a>/);
   assert.match(full, /<a class="up" href='https:\/\/example\.com\/up\.md'>up<\/a>/);
 });
+
+test('a URL that starts with / resolves against the base URL, which is the docs root', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[top](/top.md) [home](/) ![logo](/img/logo.png) <img src="/img/i.png"> <a href="/x.md">x</a>\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /\[top\]\(https:\/\/example\.com\/docs\/top\.md\)/);
+  assert.match(full, /\[home\]\(https:\/\/example\.com\/docs\/README\.md\)/);
+  assert.match(full, /!\[logo\]\(https:\/\/example\.com\/docs\/img\/logo\.png\)/);
+  assert.match(full, /<img src="https:\/\/example\.com\/docs\/img\/i\.png">/);
+  assert.match(full, /<a href="https:\/\/example\.com\/docs\/x\.md">/);
+});

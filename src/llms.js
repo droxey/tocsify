@@ -350,6 +350,7 @@ function isRelative(url) {
 }
 
 function absolute(url, baseUrl, folder) {
+  if (url.startsWith('/')) return new URL(url.replace(/^\/+/, ''), baseUrl).href;
   return new URL(url, `${baseUrl}${folder ? `${folder}/` : ''}`).href;
 }
 
