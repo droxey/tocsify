@@ -33,3 +33,10 @@ test('matches docs/toc-test.md byte for byte with maxdepth 3 and no header', () 
   const golden = fs.readFileSync(path.join(root, 'docs/toc-test.md'), 'utf8');
   assert.equal(toc, golden);
 });
+
+test('header on adds ### before each page link', () => {
+  const docsDir = copyDocs();
+  const toc = renderToc(pagesOf(docsDir), { maxdepth: 3 });
+  assert.match(toc, /^### \[test\/markdown-guide\]\(test\/markdown-guide\.md\)/m);
+  assert.equal(toc.includes('\n### [Markdown]'), false);
+});
