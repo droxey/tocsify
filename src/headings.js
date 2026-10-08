@@ -46,7 +46,7 @@ function codeMask(lines) {
 }
 
 function parse(markdown) {
-  const text = String(markdown);
+  const text = String(markdown).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const fm = text.match(/^---\n([\s\S]*?)\n---\n/);
   const frontmatter = fm ? fm[1] : '';
   const rest = fm ? text.slice(fm[0].length) : text;

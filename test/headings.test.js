@@ -134,3 +134,10 @@ test('front matter is skipped and returned', () => {
   assert.equal(parsed.headings[0].text, 'Title');
   assert.equal(parsed.body.startsWith('# Title'), true);
 });
+
+test('CRLF and a leading BOM parse the same as LF', () => {
+  const lf = parse('# Title\n\nHello.\n');
+  const crlf = parse('\uFEFF# Title\r\n\r\nHello.\r\n');
+  assert.deepEqual(crlf.headings, lf.headings);
+  assert.equal(crlf.firstParagraph, lf.firstParagraph);
+});
