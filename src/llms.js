@@ -594,7 +594,7 @@ function expandIncludes(text, ctx) {
 
 function transformPlain(text, ctx) {
   let next = stripIgnoreMarkers(text);
-  next = next.replace(/<!--[\s\S]*?-->/g, '');
+  if (!ctx.keepComments) next = next.replace(/<!--[\s\S]*?-->/g, '');
   if (!ctx.inlined) next = expandIncludes(next, ctx);
   return outsideCode(next, (value) => rewritePlain(value, ctx));
 }

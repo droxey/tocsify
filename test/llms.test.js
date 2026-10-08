@@ -857,3 +857,12 @@ test('comments inside fenced code and inline code stay', () => {
   assert.match(full, /`<!-- stay -->`/);
   assert.match(full, /<!-- stay in fence -->/);
 });
+
+test('--keep-comments keeps comments and still strips ignore markers', () => {
+  const dir = makeDocs({
+    'README.md': '# Home <!-- {docsify-ignore} -->\n\nHello <!-- hidden --> world.\n',
+  });
+  const full = renderLlmsFull(siteOf(dir), { keepComments: true });
+  assert.match(full, /<!-- hidden -->/);
+  assert.equal(full.includes('docsify-ignore'), false);
+});
