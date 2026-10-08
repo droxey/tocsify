@@ -90,26 +90,27 @@ function resolveBaseUrl({
 function withSlash(baseUrl) {
   return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 }
-
+function pageTitle(){ return ""; }
 function pageDescription(parsed) {
   const line = parsed.frontmatter.split('\n').find((item) => item.startsWith('description:'));
-  if (!line) return '';
-  let value = line.slice('description:'.length).trim();
-  const quote = value[0];
-  if ((quote === '"' || quote === "'") && value.endsWith(quote) && value.length > 1) {
-    value = value.slice(1, -1);
+  if (line) {
+    let value = line.slice('description:'.length).trim();
+    const quote = value[0];
+    if ((quote === '"' || quote === "'") && value.endsWith(quote) && value.length > 1) {
+      value = value.slice(1, -1);
+    }
+    return value;
   }
-  return value;
+  if (!parsed.firstParagraph) return '';
+  const sentence = parsed.firstParagraph.match(/^[\s\S]*?[.!?](?=\s|$)/);
+  return sentence ? sentence[0] : parsed.firstParagraph;
 }
+
 function makePage(rel, abs, baseUrl) {
   void baseUrl;
   const parsed = parse(readText(abs));
   return {
-    rel,
-    abs,
-    url: '',
-    title: '',
-    description: pageDescription(parsed),
+    rel, abs, url: '', title: '', description: pageDescription(parsed),
     ignoreAll: parsed.headings.some((heading) => heading.ignoreAll),
   };
 }

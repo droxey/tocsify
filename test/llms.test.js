@@ -235,3 +235,15 @@ test('description comes from front matter', () => {
   assert.equal(byRel['single.md'], 'Single text');
   assert.equal(byRel['plain.md'], 'Plain text');
 });
+
+test('description falls back to the first sentence of the first paragraph', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHome.\n',
+    'story.md': '# Story\n\nFirst sentence. Second sentence.\n',
+    'open.md': '# Open\n\nJust words\n',
+  });
+  const pages = siteOf(dir).groups.flatMap((group) => group.pages);
+  const byRel = Object.fromEntries(pages.map((page) => [page.rel, page.description]));
+  assert.equal(byRel['story.md'], 'First sentence.');
+  assert.equal(byRel['open.md'], 'Just words');
+});
