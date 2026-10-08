@@ -385,11 +385,24 @@ const DEST = '([^)\\s]+)';
 const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const IMAGE = new RegExp(`!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const BADGE = new RegExp(`\\[!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)\\]\\(${DEST}([^)]*)\\)`, 'g');
+const REF_DEF = /^( {0,3}\[([^\]]+)\]:[ \t]*)(<[^>\n]*>|\S+)/gm;
 const IMG_SRC = /(<img\b[^>]*\bsrc\s*=\s*)(["'])([^"']+)\2/gi;
 const A_HREF = /(<a\b[^>]*\bhref\s*=\s*)(["'])([^"']+)\2/gi;
 
 function mapDest(dest, target, ctx) {
   return target(dest, ctx);
+}
+
+function refKey(label) {
+  return label.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function imageRefKeys(text) {
+  const keys = new Set();
+  for (const match of text.matchAll(/!\[([^\]]*)\](?:\[([^\]]*)\]|(?![(:]))/g)) {
+    keys.add(refKey(match[2] || match[1]));
+  }
+  return keys;
 }
 
 function rewritePlain(text, ctx) {
@@ -406,6 +419,10 @@ function rewritePlain(text, ctx) {
   next = next.replace(IMAGE, (full, alt, url, rest) => hold(`![${alt}](${image(url)}${rest})`));
   next = next.replace(LINK, (full, label, url, rest) => `[${label}](${link(url)}${rest})`);
   next = next.replace(/%%LLMS_SLOT_(\d+)%%/g, (full, index) => slots[Number(index)]);
+  next = next.replace(REF_DEF, (full, pre, label, url) => {
+    const target = ctx.imageRefs.has(refKey(label)) ? imageTarget : linkTarget;
+    return `${pre}${mapDest(url, target, ctx)}`;
+  });
   const html = (full, pre, quote, url) => `${pre}${quote}${htmlTarget(url, ctx)}${quote}`;
   next = next.replace(IMG_SRC, html);
   next = next.replace(A_HREF, html);
@@ -465,7 +482,8 @@ function transformPlain(text, ctx) {
 }
 
 function transform(text, ctx) {
-  return outsideCode(text, (value) => transformPlain(value, ctx));
+  const local = { ...ctx, imageRefs: imageRefKeys(text) };
+  return outsideCode(text, (value) => transformPlain(value, local));
 }
 
 function processBody(page, site, options) {

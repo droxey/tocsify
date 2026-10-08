@@ -622,3 +622,27 @@ test('a URL that starts with / resolves against the base URL, which is the docs 
   assert.match(full, /<img src="https:\/\/example\.com\/docs\/img\/i\.png">/);
   assert.match(full, /<a href="https:\/\/example\.com\/docs\/x\.md">/);
 });
+
+test('reference-style definitions resolve like the links and images that use them', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': [
+      '# Setup',
+      '',
+      'See [the guide][g], [Other], `[code][g]`, and ![logo][l]. ![Badge][]',
+      '',
+      '[g]: ./next.md',
+      '[other]: other.md "Other"',
+      '[l]: img/logo.png',
+      '[badge]: img/badge.svg',
+      '  [abs]: https://example.com/abs',
+    ].join('\n'),
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /^\[g\]: https:\/\/example\.com\/docs\/next\.md$/m);
+  assert.match(full, /^\[other\]: https:\/\/example\.com\/docs\/other\.md "Other"$/m);
+  assert.match(full, /^\[l\]: https:\/\/example\.com\/docs\/guide\/img\/logo\.png$/m);
+  assert.match(full, /^\[badge\]: https:\/\/example\.com\/docs\/guide\/img\/badge\.svg$/m);
+  assert.match(full, /^ {2}\[abs\]: https:\/\/example\.com\/abs$/m);
+  assert.match(full, /`\[code\]\[g\]`/);
+});
