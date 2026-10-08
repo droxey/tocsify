@@ -46,3 +46,12 @@ test('keeps my_guide.md and api/v2_beta/intro.md', () => {
     'my_guide.md',
   ]);
 });
+
+test('skips folders whose names start with an underscore', () => {
+  const dir = makeDocs({
+    '_media/pic.md': '# P\n',
+    'guide/_draft/secret.md': '# S\n',
+    'guide/ok.md': '# O\n',
+  });
+  assert.deepEqual(listPages(dir).map((page) => page.rel), ['guide/ok.md']);
+});
