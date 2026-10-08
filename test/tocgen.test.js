@@ -40,3 +40,11 @@ test('header on adds ### before each page link', () => {
   assert.match(toc, /^### \[test\/markdown-guide\]\(test\/markdown-guide\.md\)/m);
   assert.equal(toc.includes('\n### [Markdown]'), false);
 });
+
+test('maxdepth limits heading levels', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-depth-'));
+  const page = writePage(dir, 'guide.md', '# Guide\n## Two\n### Three\n');
+  const toc = renderToc([page], { maxdepth: 2, header: false });
+  assert.equal(toc.includes('Three'), false);
+  assert.equal(toc.includes('Two'), true);
+});
