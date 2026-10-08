@@ -247,3 +247,11 @@ test('description falls back to the first sentence of the first paragraph', () =
   assert.equal(byRel['story.md'], 'First sentence.');
   assert.equal(byRel['open.md'], 'Just words');
 });
+
+test('an entry has no description when the page has no paragraph', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n', 'empty.md': '# Empty\n' });
+  const page = siteOf(dir).groups[0].pages.find((item) => item.rel === 'empty.md');
+  assert.equal(page.description, '');
+  assert.equal(renderLlmsTxt(siteOf(dir)).includes('[Empty]'), true);
+  assert.match(renderLlmsTxt(siteOf(dir)), /- \[Empty\]\(https:\/\/example.com\/docs\/empty\.md\)\n/);
+});

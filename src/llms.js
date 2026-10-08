@@ -90,7 +90,12 @@ function resolveBaseUrl({
 function withSlash(baseUrl) {
   return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 }
-function pageTitle(){ return ""; }
+
+function pageTitle(rel, parsed) {
+  void rel;
+  const h1 = parsed.headings.find((heading) => heading.level === 1);
+  return h1 ? h1.text : '';
+}
 function pageDescription(parsed) {
   const line = parsed.frontmatter.split('\n').find((item) => item.startsWith('description:'));
   if (line) {
@@ -107,10 +112,13 @@ function pageDescription(parsed) {
 }
 
 function makePage(rel, abs, baseUrl) {
-  void baseUrl;
   const parsed = parse(readText(abs));
+  const root = withSlash(baseUrl);
   return {
-    rel, abs, url: '', title: '', description: pageDescription(parsed),
+    rel, abs,
+    url: new URL(encodeURI(rel), root).href,
+    title: pageTitle(rel, parsed),
+    description: pageDescription(parsed),
     ignoreAll: parsed.headings.some((heading) => heading.ignoreAll),
   };
 }
@@ -166,6 +174,12 @@ function buildSite({ docsDir, baseUrl, exclude = [], title, summary, cwd }) {
 function renderLlmsTxt(site) {
   let out = `# ${site.title}\n`;
   if (site.summary) out += `\n> ${site.summary}\n`;
+  for (const group of site.groups) {
+    for (const page of group.pages) {
+      const desc = page.description ? `: ${page.description}` : '';
+      out += `- [${page.title}](${page.url})${desc}\n`;
+    }
+  }
   return out;
 }
 function renderLlmsFull() { throw new Error('later'); }
