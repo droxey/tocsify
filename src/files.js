@@ -10,6 +10,7 @@ function listPages(docsDir, { exclude = [] } = {}) {
     const rel = String(name).split(path.sep).join('/');
     const abs = path.resolve(docsDir, rel);
     if (!fs.statSync(abs).isFile()) continue;
+    if (!rel.endsWith('.md')) continue;
     if (rel.split('/').some((seg) => seg.startsWith('_') || seg.startsWith('.'))) continue;
     const base = path.posix.basename(rel);
     if (base === 'README.md' || base === 'index.md') continue;
