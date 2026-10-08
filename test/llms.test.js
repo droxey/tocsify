@@ -57,3 +57,10 @@ test('uses CNAME when there is no flag', () => {
     docsDir: dir, cwd: dir, env: { GITHUB_REPOSITORY: 'other/repo' }, gitRemote: () => 'https://github.com/a/b.git',
   }), 'https://example.com/');
 });
+
+test('maps GITHUB_REPOSITORY to a project site URL', () => {
+  const dir = makeDocs({});
+  assert.equal(resolveBaseUrl({
+    docsDir: dir, cwd: dir, env: { GITHUB_REPOSITORY: 'Owner/Repo' }, gitRemote: () => '',
+  }), 'https://owner.github.io/Repo/');
+});

@@ -4,17 +4,22 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-function resolveBaseUrl({ flag, docsDir }) {
+function resolveBaseUrl({ flag, docsDir, env = {} }) {
   if (flag) {
-    if (!/^https?:\/\//i.test(flag)) {
-      throw new Error('--base-url must start with http:// or https://');
-    }
+    if (!/^https?:\/\//i.test(flag)) throw new Error('--base-url must start with http:// or https://');
     return flag.endsWith('/') ? flag : `${flag}/`;
   }
   let text = '';
   try { text = fs.readFileSync(path.join(docsDir, 'CNAME'), 'utf8'); } catch (err) { text = ''; }
   const line = text.split(/\r?\n/).map((item) => item.trim()).find(Boolean);
   if (line) return `https://${line}/`;
+  if (typeof env.GITHUB_REPOSITORY === 'string' && env.GITHUB_REPOSITORY.includes('/')) {
+    const repo = env.GITHUB_REPOSITORY;
+    const slash = repo.indexOf('/');
+    const owner = repo.slice(0, slash).toLowerCase();
+    const name = repo.slice(slash + 1);
+    return `https://${owner}.github.io/${name}/`;
+  }
   throw new Error('no base url');
 }
 
