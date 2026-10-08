@@ -262,3 +262,16 @@ test('entry title falls back to the path without .md', () => {
   const guide = pages.find((page) => page.rel === 'guide/no-h1.md');
   assert.equal(guide.title, 'guide/no-h1');
 });
+
+test('URLs are absolute, use /, and percent-encode spaces', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n', 'my file.md': '# Space\n' });
+  const page = siteOf(dir).groups[0].pages.find((item) => item.rel === 'my file.md');
+  assert.equal(page.url, 'https://example.com/docs/my%20file.md');
+  const bare = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs',
+    cwd: dir,
+  });
+  const again = bare.groups[0].pages.find((item) => item.rel === 'my file.md');
+  assert.equal(again.url, 'https://example.com/docs/my%20file.md');
+});
