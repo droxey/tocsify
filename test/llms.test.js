@@ -567,3 +567,13 @@ test('extensionless and folder links load .md and README.md, as Docsify does', (
   assert.match(full, /\[page\]\(https:\/\/example\.com\/docs\/demo\.html\)/);
   assert.match(full, /\[md\]\(https:\/\/example\.com\/docs\/other\.md\?x=1\)/);
 });
+
+test('a relative link to a non-markdown file keeps its path from the docs root', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[pdf](files/guide.pdf) [archive](files/demo.tar.gz)\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /\[pdf\]\(https:\/\/example\.com\/docs\/files\/guide\.pdf\)/);
+  assert.match(full, /\[archive\]\(https:\/\/example\.com\/docs\/files\/demo\.tar\.gz\)/);
+});

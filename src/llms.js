@@ -360,7 +360,7 @@ function splitSuffix(url) {
 
 function docsifyPagePath(file) {
   if (file === '' || file.endsWith('/')) return `${file}README.md`;
-  if (/\.(md|html)$/.test(file)) return file;
+  if (path.posix.extname(file)) return file;
   return `${file}.md`;
 }
 
