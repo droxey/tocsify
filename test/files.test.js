@@ -27,3 +27,11 @@ test('lists .md files recursively in en locale order with / separators', () => {
   assert.deepEqual(pages.map((page) => page.rel), ['a.md', 'B.md', 'sub/c.md']);
   assert.equal(pages[2].abs, path.resolve(dir, 'sub/c.md'));
 });
+
+test('skips files whose names start with an underscore', () => {
+  const dir = makeDocs({
+    '_sidebar.md': '# S\n',
+    'guide.md': '# G\n',
+  });
+  assert.deepEqual(listPages(dir).map((page) => page.rel), ['guide.md']);
+});

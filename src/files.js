@@ -10,7 +10,7 @@ function listPages(docsDir, { exclude = [] } = {}) {
     const rel = String(name).split(path.sep).join('/');
     const abs = path.resolve(docsDir, rel);
     if (!fs.statSync(abs).isFile()) continue;
-    
+    if (rel.includes('_')) continue;
     pages.push({ rel, abs });
   }
   pages.sort((a, b) => a.rel.localeCompare(b.rel, 'en'));
