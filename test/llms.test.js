@@ -191,3 +191,33 @@ test('title falls back to package.json name, then the folder name, and the block
   assert.equal(folderSite.title, path.basename(folder));
   assert.equal(folderSite.summary, '');
 });
+
+test('lists the home page first, then toc pages, without underscore, toc, or ignore-all pages', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-order-'));
+  fs.cpSync(siteDir, dir, { recursive: true });
+  const site = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(dir, 'toc.md'), path.join(dir, 'README.md')],
+    cwd: dir,
+  });
+  const rels = site.groups.flatMap((group) => group.pages.map((page) => page.rel));
+  assert.equal(rels.includes('README.md'), false);
+  assert.equal(rels.includes('toc.md'), false);
+  assert.equal(rels.includes('hidden.md'), false);
+  assert.equal(rels.includes('_navbar.md'), false);
+  assert.deepEqual(rels, [
+    'about.md',
+    'comments.md',
+    'samples.md',
+    'guide/parts/part.md',
+    'guide/setup.md',
+  ]);
+  const withHome = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(dir, 'toc.md')],
+    cwd: dir,
+  });
+  assert.equal(withHome.groups[0].pages[0].rel, 'README.md');
+});

@@ -87,31 +87,76 @@ function resolveBaseUrl({
   throw new Error('could not detect the site URL. Pass --base-url, for example --base-url=https://example.com/docs/, or use --no-llm.');
 }
 
-
-function renderLlmsTxt(site) {
-  let out = `# ${site.title}\n`;
-  if (site.summary) out += `\n> ${site.summary}\n`;
-  return out;
+function withSlash(baseUrl) {
+  return baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 }
-function buildSite({ docsDir, baseUrl, title, summary, cwd }) {
+
+function makePage(rel, abs, baseUrl) {
+  void baseUrl;
+  const parsed = parse(readText(abs));
+  return {
+    rel,
+    abs,
+    url: '',
+    title: '',
+    description: '',
+    ignoreAll: parsed.headings.some((heading) => heading.ignoreAll),
+  };
+}
+function groupByH2(pages) {
+  const groups = [];
+  const index = new Map();
+  for (const page of pages) {
+    const dir = path.posix.dirname(page.rel);
+    const name = dir === '.' ? 'Docs' : dir;
+    if (!index.has(name)) {
+      const group = { name, pages: [] };
+      index.set(name, group);
+      groups.push(group);
+    }
+    index.get(name).pages.push(page);
+  }
+  return groups;
+}
+function collectH2Pages(docsDir, baseUrl, exclude) {
+  const excluded = new Set(exclude.map((item) => path.resolve(item)));
+  const pages = [];
   const home = findHomePage(docsDir);
+  if (home) {
+    const abs = path.resolve(docsDir, home);
+    if (!excluded.has(abs)) pages.push(makePage(home, abs, baseUrl));
+  }
+  for (const page of listPages(docsDir, { exclude })) {
+    pages.push(makePage(page.rel, page.abs, baseUrl));
+  }
+  return pages.filter((page) => !page.ignoreAll);
+}
+
+function buildSite({ docsDir, baseUrl, exclude = [], title, summary, cwd }) {
+  const root = withSlash(baseUrl || '');
+  const pages = collectH2Pages(docsDir, root, exclude);
+  const groups = groupByH2(pages);
   let resolvedTitle = title || '';
   let resolvedSummary = summary || '';
-  const pages = [];
-  if (home && fs.existsSync(path.join(docsDir, home))) {
-    const abs = path.join(docsDir, home);
-    const parsed = parse(readText(abs));
-    const h1 = parsed.headings.find((heading) => heading.level === 1);
-    if (!title && h1 && h1.text) resolvedTitle = h1.text;
-    if (!summary) resolvedSummary = parsed.firstParagraph || '';
-    pages.push({ rel: home, abs, url: '', title: resolvedTitle, description: '' });
+  const home = findHomePage(docsDir);
+  let homeParsed = null;
+  if (home && fs.existsSync(path.join(docsDir, home))) homeParsed = parse(readText(path.join(docsDir, home)));
+  if (!resolvedTitle) {
+    const h1 = homeParsed && homeParsed.headings.find((heading) => heading.level === 1);
+    if (h1 && h1.text) resolvedTitle = h1.text;
   }
   if (!resolvedTitle) {
     const pkg = readPkg(cwd);
     if (pkg && typeof pkg.name === 'string' && pkg.name) resolvedTitle = pkg.name;
   }
   if (!resolvedTitle) resolvedTitle = path.basename(docsDir);
-  return { title: resolvedTitle, summary: resolvedSummary, groups: [{ name: 'Docs', pages }], baseUrl: baseUrl || '', docsDir };
+  if (!summary) resolvedSummary = homeParsed && homeParsed.firstParagraph ? homeParsed.firstParagraph : '';
+  return { title: resolvedTitle, summary: resolvedSummary, baseUrl: root, docsDir, groups };
 }
-function renderLlmsFull() { throw new Error('renderLlmsFull missing'); }
+function renderLlmsTxt(site) {
+  let out = `# ${site.title}\n`;
+  if (site.summary) out += `\n> ${site.summary}\n`;
+  return out;
+}
+function renderLlmsFull() { throw new Error('later'); }
 module.exports = { resolveBaseUrl, buildSite, renderLlmsTxt, renderLlmsFull };
