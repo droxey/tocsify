@@ -362,3 +362,23 @@ test('sidebar grouping warns on a missing page and skips it', () => {
   assert.deepEqual(site.groups.flatMap((group) => group.pages.map((page) => page.rel)), ['about.md']);
   assert.deepEqual(warnings, ['sidebar link not found: missing.md', 'sidebar link not found: guide.md']);
 });
+
+test('sidebar grouping lists each page once, at its first link', () => {
+  const dir = makeDocs({
+    'about.md': '# About\n\nAbout.\n',
+    'guide/setup.md': '# Setup\n\nInstall.\n',
+    '_sidebar.md': [
+      '- First',
+      '  - [About](about.md)',
+      '- Second',
+      '  - [Again](/about)',
+      '  - [Setup](guide/setup.md)',
+      '  - [Setup again](guide/setup.md#install)',
+    ].join('\n'),
+  });
+  const site = siteOf(dir, { group: 'sidebar' });
+  assert.deepEqual(site.groups.map((group) => [group.name, group.pages.map((page) => page.rel)]), [
+    ['First', ['about.md']],
+    ['Second', ['guide/setup.md']],
+  ]);
+});

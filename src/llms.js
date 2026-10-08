@@ -178,6 +178,7 @@ function sidebarTarget(target) {
 function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
   const sidebarPath = path.join(docsDir, '_sidebar.md');
   const sections = parseSidebar(readText(sidebarPath));
+  const seen = new Set();
   const groups = [];
   function bucket(name) {
     let group = groups.find((item) => item.name === name);
@@ -192,11 +193,13 @@ function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
       const resolved = sidebarTarget(target);
       if (resolved.external) continue;
       const abs = path.resolve(docsDir, resolved.rel);
+      if (seen.has(abs)) continue;
       if (!fs.existsSync(abs)) {
         onWarn(`sidebar link not found: ${resolved.rel}`);
         continue;
       }
       const page = makePage(resolved.rel, abs, baseUrl);
+      seen.add(abs);
       bucket(section.name).pages.push(page);
     }
   }
