@@ -160,3 +160,10 @@ test('a missing base URL exits 1 and names --base-url', () => {
   assert.match(result.stderr, /--base-url/);
   assert.equal(fs.existsSync(path.join(outside, 'docs/toc.md')), false);
 });
+
+test('a bad --group value exits 1', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n' });
+  const result = runCli(['--group=nope', '--no-llm'], dir);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /--group must be h2 or sidebar/);
+});
