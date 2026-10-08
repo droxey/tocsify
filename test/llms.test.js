@@ -177,3 +177,17 @@ test('summary skips a badge-only paragraph', () => {
   });
   assert.equal(siteOf(dir).summary, 'Real summary here.');
 });
+
+test('title falls back to package.json name, then the folder name, and the blockquote is left out without a paragraph', () => {
+  const named = makeDocs({ 'page.md': 'No heading and no paragraph marker.\n', 'package.json': JSON.stringify({ name: 'from-pkg' }) });
+  const namedSite = siteOf(named);
+  assert.equal(namedSite.title, 'from-pkg');
+  assert.equal(namedSite.summary, '');
+  assert.equal(renderLlmsTxt(namedSite).includes('> '), false);
+  const folder = makeDocs({ 'package.json': '{}' });
+  const folderSite = buildSite({
+    docsDir: folder, baseUrl: 'https://example.com/', exclude: [], cwd: folder,
+  });
+  assert.equal(folderSite.title, path.basename(folder));
+  assert.equal(folderSite.summary, '');
+});

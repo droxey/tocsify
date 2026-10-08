@@ -88,7 +88,12 @@ function resolveBaseUrl({
 }
 
 
-function buildSite({ docsDir, baseUrl, title, summary }) {
+function renderLlmsTxt(site) {
+  let out = `# ${site.title}\n`;
+  if (site.summary) out += `\n> ${site.summary}\n`;
+  return out;
+}
+function buildSite({ docsDir, baseUrl, title, summary, cwd }) {
   const home = findHomePage(docsDir);
   let resolvedTitle = title || '';
   let resolvedSummary = summary || '';
@@ -97,12 +102,16 @@ function buildSite({ docsDir, baseUrl, title, summary }) {
     const abs = path.join(docsDir, home);
     const parsed = parse(readText(abs));
     const h1 = parsed.headings.find((heading) => heading.level === 1);
-    if (!title) resolvedTitle = h1 ? h1.text : '';
+    if (!title && h1 && h1.text) resolvedTitle = h1.text;
     if (!summary) resolvedSummary = parsed.firstParagraph || '';
     pages.push({ rel: home, abs, url: '', title: resolvedTitle, description: '' });
   }
+  if (!resolvedTitle) {
+    const pkg = readPkg(cwd);
+    if (pkg && typeof pkg.name === 'string' && pkg.name) resolvedTitle = pkg.name;
+  }
+  if (!resolvedTitle) resolvedTitle = path.basename(docsDir);
   return { title: resolvedTitle, summary: resolvedSummary, groups: [{ name: 'Docs', pages }], baseUrl: baseUrl || '', docsDir };
 }
-function renderLlmsTxt() { throw new Error('renderLlmsTxt missing'); }
 function renderLlmsFull() { throw new Error('renderLlmsFull missing'); }
 module.exports = { resolveBaseUrl, buildSite, renderLlmsTxt, renderLlmsFull };
