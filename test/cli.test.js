@@ -121,3 +121,13 @@ test('--no-header and --header=false drop ### and --header=true keeps it', () =>
   assert.equal(on.status, 0);
   assert.match(fs.readFileSync(path.join(dir, 'on.md'), 'utf8'), /^### \[guide\]\(guide\.md\)/m);
 });
+
+test('--verbose and -v print the toc to stdout', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  const result = runCli(['--no-llm', '--verbose'], dir);
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /\[guide\]\(guide\.md\)/);
+  const short = runCli(['--no-llm', '-v', '--file=v.md'], dir);
+  assert.equal(short.status, 0);
+  assert.match(short.stdout, /\[guide\]\(guide\.md\)/);
+});

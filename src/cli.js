@@ -147,6 +147,7 @@ function run(argv, {
     stderr.write(`[tocsify] error: ${err.message}\n`);
     return 1;
   }
+  if (parsed.values.verbose) stdout.write(toc);
   const names = writes.map(([abs]) => path.relative(cwd, abs).split(path.sep).join('/'));
   return 0;
 }
