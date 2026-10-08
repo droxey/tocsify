@@ -45,6 +45,17 @@ function codeMask(lines) {
   return mask;
 }
 
+
+function hasIgnore(raw) {
+  if (/<!--\s*\{docsify-ignore\}\s*-->/.test(raw)) return true;
+  return /\{docsify-ignore\}/.test(raw);
+}
+
+function hasIgnoreAll(raw) {
+  if (/<!--\s*\{docsify-ignore-all\}\s*-->/.test(raw)) return true;
+  return /\{docsify-ignore-all\}/.test(raw);
+}
+
 function parse(markdown) {
   const text = String(markdown).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const fm = text.match(/^---\n([\s\S]*?)\n---\n/);
@@ -82,8 +93,8 @@ function parse(markdown) {
       raw,
       text: raw.replace(/(^|\s):id=\S+/g, '$1').replace(/\s+/g, ' ').trim(),
       id: slugify(idMatch ? idMatch[1] : raw, seen),
-      ignore: /\{docsify-ignore\}/.test(raw),
-      ignoreAll: false,
+      ignore: hasIgnore(raw),
+      ignoreAll: hasIgnoreAll(raw),
     });
   }
   return {

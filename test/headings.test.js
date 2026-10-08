@@ -141,3 +141,18 @@ test('CRLF and a leading BOM parse the same as LF', () => {
   assert.deepEqual(crlf.headings, lf.headings);
   assert.equal(crlf.firstParagraph, lf.firstParagraph);
 });
+
+test('both ignore forms set ignore and both ignore-all forms set ignoreAll', () => {
+  const parsed = parse([
+    '# A {docsify-ignore}',
+    '# B <!-- {docsify-ignore} -->',
+    '# C {docsify-ignore-all}',
+    '# D <!-- {docsify-ignore-all} -->',
+  ].join('\n'));
+  assert.deepEqual(parsed.headings.map((heading) => [heading.ignore, heading.ignoreAll]), [
+    [true, false],
+    [true, false],
+    [false, true],
+    [false, true],
+  ]);
+});
