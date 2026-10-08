@@ -4,13 +4,17 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-function resolveBaseUrl({ flag }) {
+function resolveBaseUrl({ flag, docsDir }) {
   if (flag) {
     if (!/^https?:\/\//i.test(flag)) {
       throw new Error('--base-url must start with http:// or https://');
     }
     return flag.endsWith('/') ? flag : `${flag}/`;
   }
+  let text = '';
+  try { text = fs.readFileSync(path.join(docsDir, 'CNAME'), 'utf8'); } catch (err) { text = ''; }
+  const line = text.split(/\r?\n/).map((item) => item.trim()).find(Boolean);
+  if (line) return `https://${line}/`;
   throw new Error('no base url');
 }
 

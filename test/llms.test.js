@@ -50,3 +50,10 @@ test('rejects a --base-url that is not http or https', () => {
     flag: 'ftp://example.com', docsDir: dir, cwd: dir, env: {}, gitRemote: () => '',
   }), /--base-url must start with http:\/\/ or https:\/\//);
 });
+
+test('uses CNAME when there is no flag', () => {
+  const dir = makeDocs({ CNAME: '\nexample.com\n' });
+  assert.equal(resolveBaseUrl({
+    docsDir: dir, cwd: dir, env: { GITHUB_REPOSITORY: 'other/repo' }, gitRemote: () => 'https://github.com/a/b.git',
+  }), 'https://example.com/');
+});
