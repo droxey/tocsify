@@ -156,3 +156,10 @@ test('title and summary come from README.md', () => {
   assert.equal(site.title, 'Toc Site');
   assert.equal(site.summary, 'This is the home page. It explains the tool.');
 });
+
+test('falls back to index.md when README.md is missing', () => {
+  const dir = makeDocs({ 'index.md': '# Index Home\n\nIndex paragraph.\n' });
+  const site = siteOf(dir);
+  assert.equal(site.title, 'Index Home');
+  assert.equal(site.groups[0].pages[0].rel, 'index.md');
+});

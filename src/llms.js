@@ -88,12 +88,20 @@ function resolveBaseUrl({
 }
 
 
-function buildSite({ docsDir }) {
-  const home = path.join(docsDir, 'README.md');
-  if (!fs.existsSync(home)) return { title: '', summary: '', groups: [], baseUrl: '', docsDir };
-  const parsed = parse(readText(home));
-  const h1 = parsed.headings.find((heading) => heading.level === 1);
-  return { title: h1 ? h1.text : '', summary: parsed.firstParagraph || '', groups: [], baseUrl: '', docsDir };
+function buildSite({ docsDir, baseUrl }) {
+  const home = findHomePage(docsDir);
+  let title = '';
+  let summary = '';
+  const pages = [];
+  if (home && fs.existsSync(path.join(docsDir, home))) {
+    const abs = path.join(docsDir, home);
+    const parsed = parse(readText(abs));
+    const h1 = parsed.headings.find((heading) => heading.level === 1);
+    title = h1 ? h1.text : '';
+    summary = parsed.firstParagraph || '';
+    pages.push({ rel: home, abs, url: '', title, description: '' });
+  }
+  return { title, summary, groups: [{ name: 'Docs', pages }], baseUrl: baseUrl || '', docsDir };
 }
 function renderLlmsTxt() { throw new Error('renderLlmsTxt missing'); }
 function renderLlmsFull() { throw new Error('renderLlmsFull missing'); }
