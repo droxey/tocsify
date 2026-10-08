@@ -658,3 +658,14 @@ test('angle-bracket destinations are rewritten with spaces percent-encoded', () 
   assert.match(full, /\[abs\]\(<https:\/\/example\.com\/a b>\)/);
   assert.match(full, /^\[def\]: https:\/\/example\.com\/docs\/other%20page\.md$/m);
 });
+
+test('unquoted src and href values are rewritten', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n<a href=foo.md>foo</a> <img src=img/x.png alt=x> <a href=#top>top</a>\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /<a href=https:\/\/example\.com\/docs\/foo\.md>foo<\/a>/);
+  assert.match(full, /<img src=https:\/\/example\.com\/docs\/img\/x\.png alt=x>/);
+  assert.match(full, /<a href=#top>top<\/a>/);
+});

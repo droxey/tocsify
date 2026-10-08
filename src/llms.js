@@ -386,8 +386,8 @@ const LINK = new RegExp(`\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const IMAGE = new RegExp(`!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const BADGE = new RegExp(`\\[!\\[([^\\]]*)\\]\\(${DEST}([^)]*)\\)\\]\\(${DEST}([^)]*)\\)`, 'g');
 const REF_DEF = /^( {0,3}\[([^\]]+)\]:[ \t]*)(<[^>\n]*>|\S+)/gm;
-const IMG_SRC = /(<img\b[^>]*\bsrc\s*=\s*)(["'])([^"']+)\2/gi;
-const A_HREF = /(<a\b[^>]*\bhref\s*=\s*)(["'])([^"']+)\2/gi;
+const IMG_SRC = /(<img\b[^>]*\bsrc\s*=\s*)(?:(["'])([^"']+)\2|([^\s"'>]+))/gi;
+const A_HREF = /(<a\b[^>]*\bhref\s*=\s*)(?:(["'])([^"']+)\2|([^\s"'>]+))/gi;
 
 function mapDest(dest, target, ctx) {
   if (/^<[^>]*>$/.test(dest)) {
@@ -427,9 +427,10 @@ function rewritePlain(text, ctx) {
     const target = ctx.imageRefs.has(refKey(label)) ? imageTarget : linkTarget;
     return `${pre}${mapDest(url, target, ctx)}`;
   });
-  const html = (full, pre, quote, url) => `${pre}${quote}${htmlTarget(url, ctx)}${quote}`;
-  next = next.replace(IMG_SRC, html);
-  next = next.replace(A_HREF, html);
+  const html = (full, pre, quote, quoted, bare) => (
+    quote ? `${pre}${quote}${htmlTarget(quoted, ctx)}${quote}` : `${pre}${htmlTarget(bare, ctx)}`
+  );
+  next = next.replace(IMG_SRC, html).replace(A_HREF, html);
   return next;
 }
 
