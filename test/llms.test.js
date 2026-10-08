@@ -170,3 +170,10 @@ test('--title and --summary override the home page', () => {
   assert.equal(site.title, 'Custom');
   assert.equal(site.summary, 'Short summary');
 });
+
+test('summary skips a badge-only paragraph', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\n[![npm](https://img.example/b.svg)](https://example.com)\n\nReal summary here.\n',
+  });
+  assert.equal(siteOf(dir).summary, 'Real summary here.');
+});
