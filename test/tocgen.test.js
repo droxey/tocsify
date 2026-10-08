@@ -113,3 +113,7 @@ test('anchors use Docsify 5 ids such as _1-first-step and café-olé', () => {
   assert.match(toc, /edge\.md#_1-first-step\)/);
   assert.match(toc, /edge\.md#café-olé\)/);
 });
+
+test('an empty docs folder gives an empty toc', () => {
+  assert.equal(renderToc([]), '');
+});
