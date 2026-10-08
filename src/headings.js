@@ -15,9 +15,9 @@ function slugify(text, seen) {
     .replace(PUNCT, '')
     .replace(/\s/g, '-')
     .replace(/^(\d)/, '_$1');
-  const count = seen.has(slug) ? 1 : 0;
-  seen.set(slug, 1);
-  return count ? `${slug}-1` : slug;
+  const count = seen.has(slug) ? seen.get(slug) + 1 : 0;
+  seen.set(slug, count);
+  return count ? `${slug}-${count}` : slug;
 }
 
 function codeMask(lines) {

@@ -63,3 +63,12 @@ test('slugify matches Docsify 5 ids for the 11 edge-case headings', () => {
 test('slugify keeps non-ASCII uppercase in Ünïcödé Ñame', () => {
   assert.equal(slugify('Ünïcödé Ñame', new Map()), 'Ünïcödé-Ñame');
 });
+
+test('duplicate headings get -1 and -2 suffixes', () => {
+  const parsed = parse('# Duplicate\n# Duplicate\n# Duplicate\n');
+  assert.deepEqual(parsed.headings.map((heading) => heading.id), [
+    'duplicate',
+    'duplicate-1',
+    'duplicate-2',
+  ]);
+});
