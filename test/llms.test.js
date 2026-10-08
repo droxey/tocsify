@@ -750,3 +750,16 @@ test('reference images in inlined content resolve from the page folder', () => {
   assert.match(full, /^\[d\]: https:\/\/example\.com\/docs\/guide\/img\/d\.png$/m);
   assert.match(full, /^\[n\]: https:\/\/example\.com\/docs\/next\.md$/m);
 });
+
+test('an include inside an included file stays a link, as Docsify does', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[a](_parts/a.md \':include\')\n',
+    'guide/_parts/a.md': 'A_TEXT\n\n[b](b.md \':include\')\n',
+    'guide/_parts/b.md': 'B_TEXT\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /A_TEXT/);
+  assert.equal(full.includes('B_TEXT'), false);
+  assert.match(full, /\[b\]\(https:\/\/example\.com\/docs\/b\.md ':include'\)/);
+});

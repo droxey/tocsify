@@ -544,7 +544,7 @@ function renderInclude(link, ctx) {
   const resolved = resolveLocal(link.url, ctx);
   if (mode === 'link') return includeLink(link, ctx);
   const included = readText(resolved.abs);
-  return transform(included, { ...ctx, abs: resolved.abs, rel: resolved.rel });
+  return transform(included, { ...ctx, inlined: true });
 }
 
 function expandIncludes(text, ctx) {
@@ -565,7 +565,7 @@ function expandIncludes(text, ctx) {
 
 function transformPlain(text, ctx) {
   let next = stripIgnoreMarkers(text);
-  next = expandIncludes(next, ctx);
+  if (!ctx.inlined) next = expandIncludes(next, ctx);
   return outsideCode(next, (value) => rewritePlain(value, ctx));
 }
 
