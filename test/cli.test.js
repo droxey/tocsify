@@ -131,3 +131,10 @@ test('--verbose and -v print the toc to stdout', () => {
   assert.equal(short.status, 0);
   assert.match(short.stdout, /\[guide\]\(guide\.md\)/);
 });
+
+test('an unknown flag exits 1', () => {
+  const dir = makeDocs({});
+  const result = runCli(['--bogus'], dir);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /\[tocsify\] error:/);
+});
