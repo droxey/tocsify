@@ -343,11 +343,18 @@ function fileFolder(rel) {
   return dir === '.' ? '' : dir;
 }
 
+function isRelative(url) {
+  if (url.startsWith('#') || url.startsWith('//')) return false;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) return false;
+  return true;
+}
+
 function absolute(url, baseUrl, folder) {
   return new URL(url, `${baseUrl}${folder ? `${folder}/` : ''}`).href;
 }
 
 function linkTarget(url, ctx) {
+  if (!isRelative(url)) return url;
   return absolute(url, ctx.baseUrl, '');
 }
 
@@ -364,9 +371,73 @@ function rewritePlain(text, ctx) {
   return next;
 }
 
+function splitByFence(text) {
+  const lines = text.split('\n');
+  const mask = codeMask(lines);
+  const parts = [];
+  let start = 0;
+  let mode = mask[0];
+  for (let i = 1; i <= lines.length; i += 1) {
+    if (i === lines.length || mask[i] !== mode) {
+      parts.push({ code: mode, value: lines.slice(start, i).join('\n') });
+      start = i;
+      mode = mask[i];
+    }
+  }
+  return parts;
+}
+
+function splitInline(text) {
+  const parts = [];
+  let i = 0;
+  while (i < text.length) {
+    const tick = text.indexOf('`', i);
+    if (tick === -1) {
+      parts.push({ code: false, value: text.slice(i) });
+      break;
+    }
+    let j = tick;
+    while (j < text.length && text[j] === '`') j += 1;
+    const marker = text.slice(tick, j);
+    const end = text.indexOf(marker, j);
+    if (end === -1) {
+      parts.push({ code: false, value: text.slice(i) });
+      break;
+    }
+    if (tick > i) parts.push({ code: false, value: text.slice(i, tick) });
+    parts.push({ code: true, value: text.slice(tick, end + marker.length) });
+    i = end + marker.length;
+  }
+  return parts;
+}
+
+function outsideCode(text, fn) {
+  return splitByFence(text).map((part) => {
+    if (part.code) return part.value;
+    return splitInline(part.value).map((item) => (item.code ? item.value : fn(item.value))).join('');
+  }).join('\n');
+}
+
+function transformPlain(text, ctx) {
+  let next = stripIgnoreMarkers(text);
+  return outsideCode(next, (value) => rewritePlain(value, ctx));
+}
+
+function transform(text, ctx) {
+  return outsideCode(text, (value) => transformPlain(value, ctx));
+}
+
 function processBody(page, site, options) {
   const text = stripFrontMatterAndFirstH1(readText(page.abs));
-  return rewritePlain(stripIgnoreMarkers(text), { baseUrl: site.baseUrl }).trim();
+  return transform(text, {
+    docsDir: site.docsDir,
+    baseUrl: site.baseUrl,
+    abs: page.abs,
+    rel: page.rel,
+    pageRel: page.rel,
+    keepComments: Boolean(options.keepComments),
+    onWarn: options.onWarn,
+  }).trim();
 }
 
 function renderLlmsFull(site, { keepComments = false, onWarn } = {}) {

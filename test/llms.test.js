@@ -518,3 +518,38 @@ test('relative markdown links resolve from the docs root, as Docsify does', () =
   assert.match(full, /\[up\]\(https:\/\/example\.com\/top\.md\)/);
   assert.match(full, /\[titled\]\(https:\/\/example\.com\/docs\/other\.md "Other page"\)/);
 });
+
+test('absolute URLs, mailto links, #anchors, protocol-relative URLs, and code stay unchanged', () => {
+  const dir = makeDocs({
+    'README.md': [
+      '# Home',
+      '',
+      '[ext](https://example.com/ext) [mail](mailto:a@b.c) [local](#local) [cdn](//cdn.example.com/x.js)',
+      '',
+      '![abs](https://example.com/pic.png) <img src="https://example.com/i.png">',
+      '',
+      '<a href="https://example.com/ext2">ext</a> <a href="mailto:a@b.c">mail</a>',
+      '',
+      '<a href="#local">local</a> <a href="//cdn.example.com/y.js">cdn</a>',
+      '',
+      '`[not a link](skip.md)`',
+      '',
+      '```',
+      '[not](skip2.md)',
+      '```',
+    ].join('\n'),
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /\[ext\]\(https:\/\/example\.com\/ext\)/);
+  assert.match(full, /\[mail\]\(mailto:a@b\.c\)/);
+  assert.match(full, /\[local\]\(#local\)/);
+  assert.match(full, /\[cdn\]\(\/\/cdn\.example\.com\/x\.js\)/);
+  assert.match(full, /!\[abs\]\(https:\/\/example\.com\/pic\.png\)/);
+  assert.match(full, /<img src="https:\/\/example\.com\/i\.png">/);
+  assert.match(full, /<a href="https:\/\/example\.com\/ext2">/);
+  assert.match(full, /<a href="mailto:a@b\.c">/);
+  assert.match(full, /<a href="#local">/);
+  assert.match(full, /<a href="\/\/cdn\.example\.com\/y\.js">/);
+  assert.match(full, /`\[not a link\]\(skip\.md\)`/);
+  assert.match(full, /```\n\[not\]\(skip2\.md\)\n```/);
+});
