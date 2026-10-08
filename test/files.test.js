@@ -1,0 +1,29 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const test = require('node:test');
+const { listPages, findHomePage } = require('../src/files');
+
+function makeDocs(files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-files-'));
+  for (const [rel, text] of Object.entries(files)) {
+    const abs = path.join(dir, rel);
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    fs.writeFileSync(abs, text);
+  }
+  return dir;
+}
+
+test('lists .md files recursively in en locale order with / separators', () => {
+  const dir = makeDocs({
+    'B.md': '# B\n',
+    'a.md': '# A\n',
+    'sub/c.md': '# C\n',
+  });
+  const pages = listPages(dir);
+  assert.deepEqual(pages.map((page) => page.rel), ['a.md', 'B.md', 'sub/c.md']);
+  assert.equal(pages[2].abs, path.resolve(dir, 'sub/c.md'));
+});
