@@ -98,3 +98,8 @@ test(':id= sets the id and is removed from the text', () => {
   assert.equal(parsed.headings[0].id, 'custom-id');
   assert.equal(parsed.headings[0].text, 'Hello, world!');
 });
+
+test('headings inside backtick and tilde fences are skipped', () => {
+  const parsed = parse('```\n## nope\n```\n~~~\n## also nope\n~~~\n# Yes\n');
+  assert.deepEqual(parsed.headings.map((heading) => heading.text), ['Yes']);
+});

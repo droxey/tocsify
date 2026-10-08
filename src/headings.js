@@ -24,7 +24,7 @@ function codeMask(lines) {
   const mask = new Array(lines.length).fill(false);
   let fence = null;
   for (let i = 0; i < lines.length; i += 1) {
-    const match = lines[i].match(/^ {0,3}(`{3,})/);
+    const match = lines[i].match(/^ {0,3}(`{3,}|~{3,})/);
     if (match) {
       const len = match[1].length;
       if (!fence) {
