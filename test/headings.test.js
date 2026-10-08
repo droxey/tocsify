@@ -156,3 +156,9 @@ test('both ignore forms set ignore and both ignore-all forms set ignoreAll', () 
     [false, true],
   ]);
 });
+
+test('heading text drops markers, :id=, link syntax, and HTML tags', () => {
+  const parsed = parse('# See [Docs](https://example.com) <em>now</em> :id=clean <!-- {docsify-ignore} -->\n');
+  assert.equal(parsed.headings[0].text, 'See Docs now');
+  assert.equal(parsed.headings[0].id, 'clean');
+});

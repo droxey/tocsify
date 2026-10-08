@@ -46,6 +46,18 @@ function codeMask(lines) {
 }
 
 
+
+function headingText(raw) {
+  return raw
+    .replace(/[ \t]*<!--\s*\{docsify-ignore(?:-all)?\}\s*-->/g, '')
+    .replace(/[ \t]*\{docsify-ignore(?:-all)?\}/g, '')
+    .replace(/(^|\s):id=\S+/g, '$1')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function hasIgnore(raw) {
   if (/<!--\s*\{docsify-ignore\}\s*-->/.test(raw)) return true;
   return /\{docsify-ignore\}/.test(raw);
@@ -91,7 +103,7 @@ function parse(markdown) {
     headings.push({
       level,
       raw,
-      text: raw.replace(/(^|\s):id=\S+/g, '$1').replace(/\s+/g, ' ').trim(),
+      text: headingText(raw),
       id: slugify(idMatch ? idMatch[1] : raw, seen),
       ignore: hasIgnore(raw),
       ignoreAll: hasIgnoreAll(raw),
