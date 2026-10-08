@@ -580,7 +580,15 @@ function expandIncludes(text, ctx) {
   let out = '';
   let i = 0;
   while (i < text.length) {
+    const commentAt = text.indexOf('<!--', i);
     const link = findNextLink(text, i);
+    if (commentAt !== -1 && (link === null || commentAt < link.start)) {
+      const end = text.indexOf('-->', commentAt + 4);
+      const stop = end === -1 ? text.length : end + 3;
+      out += text.slice(i, stop);
+      i = stop;
+      continue;
+    }
     if (!link) {
       out += text.slice(i);
       break;

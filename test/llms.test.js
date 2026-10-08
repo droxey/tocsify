@@ -866,3 +866,28 @@ test('--keep-comments keeps comments and still strips ignore markers', () => {
   assert.match(full, /<!-- hidden -->/);
   assert.equal(full.includes('docsify-ignore'), false);
 });
+
+test('a commented-out include is not expanded', () => {
+  const dir = makeDocs({
+    'README.md': [
+      '# Home',
+      '',
+      '<!--',
+      '[secret](_parts/secret.md \':include\')',
+      '-->',
+      '',
+      'Visible.',
+      '',
+      '<!-- unclosed [again](_parts/secret.md \':include\')',
+      '',
+      '`open',
+    ].join('\n'),
+    '_parts/secret.md': 'SECRET_SENTINEL\n',
+  });
+  const stripped = renderLlmsFull(siteOf(dir));
+  const kept = renderLlmsFull(siteOf(dir), { keepComments: true });
+  assert.equal(stripped.includes('SECRET_SENTINEL'), false);
+  assert.equal(kept.includes('SECRET_SENTINEL'), false);
+  assert.match(kept, /<!--\n\[secret\]\(https:\/\/example\.com\/docs\/_parts\/secret\.md ':include'\)\n-->/);
+  assert.match(stripped, /Visible\./);
+});
