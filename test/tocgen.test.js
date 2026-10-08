@@ -10,9 +10,14 @@ const { renderToc } = require('../src/tocgen');
 
 const root = path.join(__dirname, '..');
 
+const GENERATED = ['toc.md', 'llms.txt', 'llms-full.txt'].map((name) => path.join(root, 'docs', name));
+
 function copyDocs() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-toc-'));
-  fs.cpSync(path.join(root, 'docs'), path.join(dir, 'docs'), { recursive: true });
+  fs.cpSync(path.join(root, 'docs'), path.join(dir, 'docs'), {
+    recursive: true,
+    filter: (src) => !GENERATED.includes(path.resolve(src)),
+  });
   return path.join(dir, 'docs');
 }
 
