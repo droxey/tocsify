@@ -137,3 +137,13 @@ test('follows the order CNAME, GITHUB_REPOSITORY, git remote, homepage', () => {
     gitRemote: () => 'https://github.com/Other/Other.git',
   }), 'https://cname.example/');
 });
+
+test('throws an error that names --base-url when nothing is found', () => {
+  const dir = makeDocs({ 'package.json': JSON.stringify({ homepage: 'ftp://example.com' }) });
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-none-'));
+  assert.throws(() => resolveBaseUrl({
+    docsDir: dir,
+    cwd: outside,
+    env: { GITHUB_REPOSITORY: 'noslash' },
+  }), /--base-url/);
+});

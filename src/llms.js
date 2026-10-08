@@ -49,7 +49,7 @@ function resolveBaseUrl({ flag, docsDir, cwd, env = {}, gitRemote = defaultGitRe
       return bare.endsWith('/') ? bare : `${bare}/`;
     }
   } catch (err) { /* no package */ }
-  throw new Error('no base url');
+  throw new Error('could not detect the site URL. Pass --base-url, for example --base-url=https://example.com/docs/, or use --no-llm.');
 }
 
 function buildSite() { throw new Error('buildSite missing'); }
