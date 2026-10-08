@@ -201,3 +201,12 @@ test('the success line names each written file', () => {
   const only = runCli(['--no-llm', '--file=docs/only.md'], dir);
   assert.match(only.stdout, /\[tocsify\] wrote docs\/only.md\n$/);
 });
+
+test('a write failure exits 1 and does not keep a partial write', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n\nHello.\n' });
+  fs.mkdirSync(path.join(dir, 'docs/llms.txt'));
+  const result = runCli(['--base-url=https://example.com/docs/'], dir);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /\[tocsify\] error:/);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), false);
+});

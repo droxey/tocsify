@@ -92,12 +92,12 @@ function run(argv, {
     stderr.write(`[tocsify] error: docs folder not found: ${dirArg}\n`);
     return 1;
   }
-  if (parsed.values.group !== 'h2' && parsed.values.group !== 'sidebar') {
-    stderr.write('[tocsify] error: --group must be h2 or sidebar\n');
-    return 1;
-  }
   if (!/^[1-6]$/.test(parsed.values.maxdepth)) {
     stderr.write('[tocsify] error: --maxdepth must be an integer from 1 to 6\n');
+    return 1;
+  }
+  if (parsed.values.group !== 'h2' && parsed.values.group !== 'sidebar') {
+    stderr.write('[tocsify] error: --group must be h2 or sidebar\n');
     return 1;
   }
   const fileAbs = path.resolve(cwd, parsed.values.file);
@@ -152,6 +152,7 @@ function run(argv, {
       written.push(abs);
     }
   } catch (err) {
+    for (const abs of written) fs.unlinkSync(abs);
     stderr.write(`[tocsify] error: ${err.message}\n`);
     return 1;
   }
