@@ -18,7 +18,7 @@ function renderToc(pages, { maxdepth = 6, header = true } = {}) {
     const items = [];
     for (const heading of parsed.headings) {
       if (heading.level > maxdepth) continue;
-      if (heading.raw.includes('{docsify-ignore}') && !heading.raw.includes('<!--')) continue;
+      if (heading.ignore) continue;
       if (heading.level === 1 && heading.id === fileSlug) continue;
       const depth = heading.level - minLevel;
       const indent = '  '.repeat(depth);

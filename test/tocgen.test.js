@@ -55,3 +55,17 @@ test('default maxdepth 6 includes level 6 headings', () => {
   const toc = renderToc([page], { header: false });
   assert.match(toc, /Header 6\]\(deep\.md#header-6\)/);
 });
+
+test('leaves out headings with either ignore form', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-ign-'));
+  const page = writePage(dir, 'page.md', [
+    '# Page',
+    '## Shown',
+    '## Hidden {docsify-ignore}',
+    '## Also <!-- {docsify-ignore} -->',
+  ].join('\n'));
+  const toc = renderToc([page], { header: false });
+  assert.equal(toc.includes('Shown'), true);
+  assert.equal(toc.includes('Hidden'), false);
+  assert.equal(toc.includes('Also'), false);
+});
