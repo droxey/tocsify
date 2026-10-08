@@ -92,3 +92,9 @@ test('ignored and deep headings count toward duplicate numbering', () => {
   assert.equal(parsed.headings[2].ignore, true);
   assert.equal(parsed.headings[3].level, 6);
 });
+
+test(':id= sets the id and is removed from the text', () => {
+  const parsed = parse('# Hello, world! :id=custom-id\n');
+  assert.equal(parsed.headings[0].id, 'custom-id');
+  assert.equal(parsed.headings[0].text, 'Hello, world!');
+});

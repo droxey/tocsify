@@ -71,7 +71,7 @@ function parse(markdown) {
     headings.push({
       level,
       raw,
-      text: raw,
+      text: raw.replace(/(^|\s):id=\S+/g, '$1').replace(/\s+/g, ' ').trim(),
       id: slugify(idMatch ? idMatch[1] : raw, seen),
       ignore: /\{docsify-ignore\}/.test(raw),
       ignoreAll: false,
