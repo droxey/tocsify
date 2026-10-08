@@ -147,3 +147,12 @@ test('throws an error that names --base-url when nothing is found', () => {
     env: { GITHUB_REPOSITORY: 'noslash' },
   }), /--base-url/);
 });
+
+test('title and summary come from README.md', () => {
+  const dir = makeDocs({
+    'README.md': '# Toc Site\n\nThis is the home page. It explains the tool.\n',
+  });
+  const site = siteOf(dir);
+  assert.equal(site.title, 'Toc Site');
+  assert.equal(site.summary, 'This is the home page. It explains the tool.');
+});
