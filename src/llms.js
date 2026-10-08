@@ -498,8 +498,10 @@ function resolveLocal(url, ctx) {
     : path.resolve(path.dirname(ctx.abs), clean);
   const relToDocs = path.relative(path.resolve(ctx.docsDir), abs);
   if (relToDocs.startsWith('..')) return { outside: true };
+  const rel = relToDocs.split(path.sep).join('/');
+  if (Object.hasOwn(ctx.generated, abs)) return { abs, rel, text: ctx.generated[abs] };
   if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) return { missing: true };
-  return { abs, rel: relToDocs.split(path.sep).join('/') };
+  return { abs, rel };
 }
 
 function codeFence(content, ext) {
@@ -569,10 +571,8 @@ function renderInclude(link, ctx) {
     return includeLink(link, ctx);
   }
   if (mode === 'link') return includeLink(link, ctx);
-  if (mode === 'code') {
-    return codeFence(readText(resolved.abs), path.posix.extname(resolved.rel).slice(1));
-  }
-  const included = readText(resolved.abs);
+  const included = resolved.text === undefined ? readText(resolved.abs) : resolved.text;
+  if (mode === 'code') return codeFence(included, path.posix.extname(resolved.rel).slice(1));
   return transform(included, { ...ctx, inlined: true });
 }
 
@@ -622,14 +622,15 @@ function processBody(page, site, options) {
     pageRel: page.rel,
     keepComments: Boolean(options.keepComments),
     onWarn: options.onWarn,
+    generated: options.generated,
   }).trim();
 }
 
-function renderLlmsFull(site, { keepComments = false, onWarn } = {}) {
+function renderLlmsFull(site, { keepComments = false, onWarn, generated = {} } = {}) {
   const warn = onWarn || noop;
   const pages = site.groups.flatMap((group) => group.pages);
   const blocks = pages.map((page) => {
-    const body = processBody(page, site, { keepComments, onWarn: warn });
+    const body = processBody(page, site, { keepComments, onWarn: warn, generated });
     return `# ${page.title}\nSource: ${page.url}\n\n${body}`;
   });
   return `${blocks.join('\n\n')}\n`;

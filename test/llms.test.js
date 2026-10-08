@@ -906,3 +906,29 @@ test('llms-full.txt matches test/fixtures/site.llms-full.txt', () => {
     fs.readFileSync(path.join(root, 'test/fixtures/site.llms-full.txt'), 'utf8'),
   );
 });
+
+test('an include of the toc output uses the generated toc when toc.md does not exist yet', () => {
+  const dir = makeDocs({ 'README.md': '# Home\n\n[toc](toc.md \':include\')\n' });
+  const tocAbs = path.join(dir, 'toc.md');
+  const site = buildSite({ docsDir: dir, baseUrl: 'https://example.com/docs/', exclude: [tocAbs], cwd: dir });
+  const warnings = [];
+  const full = renderLlmsFull(site, {
+    onWarn: (message) => warnings.push(message),
+    generated: { [tocAbs]: '- [Fresh](fresh.md)\n' },
+  });
+  assert.match(full, /^- \[Fresh\]\(https:\/\/example\.com\/docs\/fresh\.md\)$/m);
+  assert.deepEqual(warnings, []);
+});
+
+test('an include of the toc output uses the generated toc over a stale toc.md', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\n[toc](toc.md \':include\')\n\n[code](toc.md \':include :type=code\')\n',
+    'toc.md': '- [Stale](stale.md)\n',
+  });
+  const tocAbs = path.join(dir, 'toc.md');
+  const site = buildSite({ docsDir: dir, baseUrl: 'https://example.com/docs/', exclude: [tocAbs], cwd: dir });
+  const full = renderLlmsFull(site, { generated: { [tocAbs]: '- [Fresh](fresh.md)\n' } });
+  assert.match(full, /^- \[Fresh\]\(https:\/\/example\.com\/docs\/fresh\.md\)$/m);
+  assert.match(full, /```md\n- \[Fresh\]\(fresh\.md\)\n```/);
+  assert.equal(full.includes('Stale'), false);
+});
