@@ -86,3 +86,12 @@ test('skips the excluded output file by resolved path', () => {
   const pages = listPages(dir, { exclude: [path.join(dir, 'toc.md')] });
   assert.deepEqual(pages.map((page) => page.rel), ['other.md']);
 });
+
+test('skips dot files and dot folders', () => {
+  const dir = makeDocs({
+    '.hidden.md': '# H\n',
+    '.git/notes.md': '# G\n',
+    'visible.md': '# V\n',
+  });
+  assert.deepEqual(listPages(dir).map((page) => page.rel), ['visible.md']);
+});
