@@ -6,7 +6,7 @@ const { parse, slugify } = require('./headings');
 
 const BULLETS = ['-', '*', '+'];
 
-function renderToc(pages, { maxdepth = 3, header = true } = {}) {
+function renderToc(pages, { maxdepth = 6, header = true } = {}) {
   let out = '';
   for (const page of pages) {
     const parsed = parse(fs.readFileSync(page.abs, 'utf8'));

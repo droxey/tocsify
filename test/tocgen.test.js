@@ -48,3 +48,10 @@ test('maxdepth limits heading levels', () => {
   assert.equal(toc.includes('Three'), false);
   assert.equal(toc.includes('Two'), true);
 });
+
+test('default maxdepth 6 includes level 6 headings', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-depth6-'));
+  const page = writePage(dir, 'deep.md', '###### Header 6\n');
+  const toc = renderToc([page], { header: false });
+  assert.match(toc, /Header 6\]\(deep\.md#header-6\)/);
+});
