@@ -1,0 +1,22 @@
+# Toc Site
+
+> This is the home page. It explains the tool.
+
+## Docs
+
+- [Toc Site](https://example.com/docs/README.md): This is the home page.
+- [About](https://example.com/docs/about.md): About this project.
+- [Comments](https://example.com/docs/comments.md): Hello world.
+- [Samples](https://example.com/docs/samples.md)
+
+## guide/parts
+
+- [Part](https://example.com/docs/guide/parts/part.md): A part of the guide.
+
+## guide
+
+- [Setup](https://example.com/docs/guide/setup.md): Install the tool
+
+## Optional
+
+- [llms-full.txt](https://example.com/docs/llms-full.txt): Full text of every page in one file

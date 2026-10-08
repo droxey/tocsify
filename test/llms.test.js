@@ -456,3 +456,15 @@ test('llms.txt ends with ## Optional linking llms-full.txt', () => {
   const text = renderLlmsTxt(siteOf(dir));
   assert.match(text, /## Optional\n\n- \[llms-full\.txt\]\(https:\/\/example\.com\/docs\/llms-full\.txt\): Full text of every page in one file\n$/);
 });
+
+test('llms.txt matches test/fixtures/site.llms.txt', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-golden-'));
+  fs.cpSync(siteDir, dir, { recursive: true });
+  const site = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(dir, 'toc.md')],
+    cwd: dir,
+  });
+  assert.equal(renderLlmsTxt(site), fs.readFileSync(path.join(root, 'test/fixtures/site.llms.txt'), 'utf8'));
+});
