@@ -1,0 +1,47 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const { spawnSync } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const test = require('node:test');
+const { HELP } = require('../src/cli');
+
+const root = path.join(__dirname, '..');
+const cliPath = path.join(root, 'src/cli.js');
+
+function makeDocs(files) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-cli-'));
+  for (const [rel, text] of Object.entries(files)) {
+    const abs = path.join(dir, rel);
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    fs.writeFileSync(abs, text);
+  }
+  return dir;
+}
+
+function runCli(args, cwd, extraEnv = {}) {
+  const env = { ...process.env, ...extraEnv };
+  delete env.GITHUB_REPOSITORY;
+  if (Object.prototype.hasOwnProperty.call(extraEnv, 'GITHUB_REPOSITORY')) {
+    env.GITHUB_REPOSITORY = extraEnv.GITHUB_REPOSITORY;
+  }
+  return spawnSync(process.execPath, [cliPath, ...args], {
+    cwd,
+    env,
+    encoding: 'utf8',
+  });
+}
+
+test('--help and -h print usage with maxdepth default 6', () => {
+  const dir = makeDocs({});
+  const long = runCli(['--help'], dir);
+  const short = runCli(['-h'], dir);
+  assert.equal(long.status, 0);
+  assert.equal(short.status, 0);
+  assert.equal(long.stdout, HELP);
+  assert.equal(short.stdout, HELP);
+  assert.match(HELP, /Default: 6/);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/toc.md')), false);
+});
