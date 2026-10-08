@@ -14,7 +14,7 @@ function renderToc(pages, { maxdepth = 6, header = true } = {}) {
     const base = path.posix.basename(page.rel, '.md');
     const fileSlug = slugify(base, new Map());
     const levels = parsed.headings.map((heading) => heading.level);
-    const minLevel = 1;
+    const minLevel = levels.length ? Math.min(...levels) : 1;
     const items = [];
     for (const heading of parsed.headings) {
       if (heading.level > maxdepth) continue;

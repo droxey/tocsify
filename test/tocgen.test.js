@@ -88,3 +88,14 @@ test('leaves out a heading whose id equals the file-name slug', () => {
   assert.equal(toc.includes('#setup)'), false);
   assert.equal(toc.includes('#intro)'), true);
 });
+
+test('indents from the highest level in the file and cycles - * +', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-indent-'));
+  const page = writePage(dir, 'nested.md', '## Two\n### Three\n#### Four\n##### Five\n');
+  const toc = renderToc([page], { header: false });
+  const lines = toc.split('\n');
+  assert.equal(lines[1], '- [Two](nested.md#two)');
+  assert.equal(lines[2], '  * [Three](nested.md#three)');
+  assert.equal(lines[3], '    + [Four](nested.md#four)');
+  assert.equal(lines[4], '      - [Five](nested.md#five)');
+});
