@@ -544,7 +544,7 @@ function renderInclude(link, ctx) {
   const resolved = resolveLocal(link.url, ctx);
   if (mode === 'link') return includeLink(link, ctx);
   const included = readText(resolved.abs);
-  return included;
+  return transform(included, { ...ctx, abs: resolved.abs, rel: resolved.rel });
 }
 
 function expandIncludes(text, ctx) {

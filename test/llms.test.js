@@ -739,3 +739,14 @@ test('inlined content resolves images from the page folder and links from the do
   assert.match(full, /<img src="https:\/\/example\.com\/docs\/h\.png">/);
   assert.match(full, /`\[skip\]\(no\.md\)`/);
 });
+
+test('reference images in inlined content resolve from the page folder', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'guide/setup.md': '# Setup\n\n[part](_parts/part.md \':include\')\n',
+    'guide/_parts/part.md': 'See ![diagram][d] and [next][n].\n\n[d]: img/d.png\n[n]: next.md\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /^\[d\]: https:\/\/example\.com\/docs\/guide\/img\/d\.png$/m);
+  assert.match(full, /^\[n\]: https:\/\/example\.com\/docs\/next\.md$/m);
+});
