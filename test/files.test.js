@@ -35,3 +35,14 @@ test('skips files whose names start with an underscore', () => {
   });
   assert.deepEqual(listPages(dir).map((page) => page.rel), ['guide.md']);
 });
+
+test('keeps my_guide.md and api/v2_beta/intro.md', () => {
+  const dir = makeDocs({
+    'my_guide.md': '# M\n',
+    'api/v2_beta/intro.md': '# I\n',
+  });
+  assert.deepEqual(listPages(dir).map((page) => page.rel), [
+    'api/v2_beta/intro.md',
+    'my_guide.md',
+  ]);
+});
