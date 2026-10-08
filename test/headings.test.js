@@ -116,3 +116,8 @@ test('setext headings parse as level 1 and level 2', () => {
     [2, 'sub'],
   ]);
 });
+
+test('a list item above --- is not a setext heading', () => {
+  const parsed = parse('- item\n---\n# Real\n');
+  assert.deepEqual(parsed.headings.map((heading) => heading.text), ['Real']);
+});

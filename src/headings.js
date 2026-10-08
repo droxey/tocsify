@@ -64,6 +64,7 @@ function parse(markdown) {
       && !mask[i + 1]
       && /^ {0,3}(?:=+|-+)[ \t]*$/.test(lines[i + 1])
       && line.trim()
+      && !/^\s*(?:[-*+]|\d+\.)[ \t]/.test(line)
     ) {
       level = lines[i + 1].trim()[0] === '=' ? 1 : 2;
       raw = line.trim();
