@@ -177,3 +177,18 @@ test('warnings go to stderr and the run exits 0', () => {
   assert.match(result.stderr, /\[tocsify\] warning: missing include: missing.md/);
   assert.equal(fs.existsSync(path.join(dir, 'docs/llms-full.txt')), true);
 });
+
+test('git remote detection works in a temp git repo', () => {
+  const dir = makeDocs({ 'docs/README.md': '# Repo\n\nHello.\n' });
+  const init = spawnSync('git', ['init'], { cwd: dir, encoding: 'utf8' });
+  assert.equal(init.status, 0);
+  const remote = spawnSync('git', ['remote', 'add', 'origin', 'https://github.com/Owner/Repo.git'], {
+    cwd: dir,
+    encoding: 'utf8',
+  });
+  assert.equal(remote.status, 0);
+  const result = runCli(['docs'], dir);
+  assert.equal(result.status, 0, result.stderr);
+  const llms = fs.readFileSync(path.join(dir, 'docs/llms.txt'), 'utf8');
+  assert.match(llms, /https:\/\/owner\.github\.io\/Repo\//);
+});
