@@ -1,26 +1,79 @@
 'use strict';
 
+const PUNCT = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g;
+const EMOJI = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
 function slugify(text, seen) {
-  void seen;
-  return text.trim().toLowerCase().replace(/[{}]/g, '').replace(/\s+/g, '-');
+  let slug = text
+    .trim()
+    .normalize('NFC')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\uFE0F/g, '')
+    .replace(EMOJI, '')
+    .toLowerCase()
+    .replace(/<[^>]+>/g, '')
+    .replace(PUNCT, '')
+    .replace(/\s/g, '-')
+    .replace(/^(\d)/, '_$1');
+  const count = seen.has(slug) ? 1 : 0;
+  seen.set(slug, 1);
+  return count ? `${slug}-1` : slug;
 }
 
 function codeMask(lines) {
-  return new Array(lines.length).fill(false);
+  const mask = new Array(lines.length).fill(false);
+  let fence = null;
+  for (let i = 0; i < lines.length; i += 1) {
+    const match = lines[i].match(/^ {0,3}(`{3,})/);
+    if (match) {
+      const len = match[1].length;
+      if (!fence) {
+        fence = { len };
+        mask[i] = true;
+        continue;
+      }
+      mask[i] = true;
+      fence = null;
+      continue;
+    }
+    if (fence) mask[i] = true;
+  }
+  return mask;
 }
 
 function parse(markdown) {
+  const lines = String(markdown).split('\n');
+  const mask = codeMask(lines);
   const headings = [];
   const seen = new Map();
-  for (const line of String(markdown).split('\n')) {
+  for (let i = 0; i < lines.length; i += 1) {
+    if (mask[i]) continue;
+    const line = lines[i];
     const atx = line.match(/^ {0,3}(#{1,6})[ \t]+(.*)$/);
-    if (!atx) continue;
-    const raw = atx[2].trim();
+    let level;
+    let raw;
+    if (atx) {
+      level = atx[1].length;
+      raw = atx[2].trim();
+    } else if (
+      i + 1 < lines.length
+      && !mask[i + 1]
+      && /^ {0,3}-+[ \t]*$/.test(lines[i + 1])
+      && line.trim()
+    ) {
+      level = 2;
+      raw = line.trim();
+      i += 1;
+    } else {
+      continue;
+    }
+    const idMatch = raw.match(/(?:^|\s):id=(\S+)/);
+    const idSeen = /\{docsify-ignore/.test(raw) ? new Map() : seen;
     headings.push({
-      level: atx[1].length,
+      level,
       raw,
       text: raw,
-      id: slugify(raw, seen),
+      id: slugify(idMatch ? idMatch[1] : raw, idSeen),
       ignore: false,
       ignoreAll: false,
     });

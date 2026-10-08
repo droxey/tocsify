@@ -41,3 +41,21 @@ test('slugify matches Docsify 5 ids for the 23 existing fixture headings', () =>
     'header-6',
   ]);
 });
+
+test('slugify matches Docsify 5 ids for the 11 edge-case headings', () => {
+  const parsed = parse(fs.readFileSync(path.join(root, 'test/fixtures/headings/edge.md'), 'utf8'));
+  assert.deepEqual(parsed.headings.map((heading) => heading.id), [
+    'edge-cases',
+    '_1-first-step',
+    'café-olé',
+    'c--c',
+    'emoji--rocket',
+    'hello-world',
+    'link-text',
+    'duplicate',
+    'duplicate-1',
+    'use-npm-i',
+    'setext-two',
+  ]);
+  assert.equal(parsed.headings.some((heading) => heading.raw.includes('not a heading')), false);
+});
