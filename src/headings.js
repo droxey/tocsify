@@ -46,7 +46,11 @@ function codeMask(lines) {
 }
 
 function parse(markdown) {
-  const lines = String(markdown).split('\n');
+  const text = String(markdown);
+  const fm = text.match(/^---\n([\s\S]*?)\n---\n/);
+  const frontmatter = fm ? fm[1] : '';
+  const rest = fm ? text.slice(fm[0].length) : text;
+  const lines = rest.split('\n');
   const mask = codeMask(lines);
   const headings = [];
   const seen = new Map();
@@ -83,8 +87,8 @@ function parse(markdown) {
     });
   }
   return {
-    frontmatter: '',
-    body: String(markdown),
+    frontmatter,
+    body: rest,
     headings,
     firstParagraph: '',
   };

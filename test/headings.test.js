@@ -127,3 +127,10 @@ test('closing hashes are removed from ATX headings', () => {
   assert.equal(parsed.headings[0].text, 'Hello');
   assert.equal(parsed.headings[0].id, 'hello');
 });
+
+test('front matter is skipped and returned', () => {
+  const parsed = parse('---\ndescription: "Hi"\n---\n# Title\n');
+  assert.equal(parsed.frontmatter, 'description: "Hi"');
+  assert.equal(parsed.headings[0].text, 'Title');
+  assert.equal(parsed.body.startsWith('# Title'), true);
+});
