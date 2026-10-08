@@ -162,3 +162,8 @@ test('heading text drops markers, :id=, link syntax, and HTML tags', () => {
   assert.equal(parsed.headings[0].text, 'See Docs now');
   assert.equal(parsed.headings[0].id, 'clean');
 });
+
+test('blockquote lines are not headings', () => {
+  const parsed = parse('> # Not ATX\n> Quote title\n---\n# Real\n');
+  assert.deepEqual(parsed.headings.map((heading) => heading.text), ['Real']);
+});
