@@ -121,3 +121,9 @@ test('a list item above --- is not a setext heading', () => {
   const parsed = parse('- item\n---\n# Real\n');
   assert.deepEqual(parsed.headings.map((heading) => heading.text), ['Real']);
 });
+
+test('closing hashes are removed from ATX headings', () => {
+  const parsed = parse('## Hello ##\n');
+  assert.equal(parsed.headings[0].text, 'Hello');
+  assert.equal(parsed.headings[0].id, 'hello');
+});

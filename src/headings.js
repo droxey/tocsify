@@ -53,7 +53,7 @@ function parse(markdown) {
   for (let i = 0; i < lines.length; i += 1) {
     if (mask[i]) continue;
     const line = lines[i];
-    const atx = line.match(/^ {0,3}(#{1,6})[ \t]+(.*)$/);
+    const atx = line.match(/^ {0,3}(#{1,6})[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/);
     let level;
     let raw;
     if (atx) {
