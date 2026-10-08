@@ -848,3 +848,12 @@ test('HTML comments are stripped outside code, in inlined content, and across li
   assert.equal(full.includes('secret'), false);
   assert.match(full, /Before {2}after\./);
 });
+
+test('comments inside fenced code and inline code stay', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\n`<!-- stay -->`\n\n```\n<!-- stay in fence -->\n```\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.match(full, /`<!-- stay -->`/);
+  assert.match(full, /<!-- stay in fence -->/);
+});
