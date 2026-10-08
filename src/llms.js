@@ -495,6 +495,7 @@ function resolveLocal(url, ctx) {
     ? path.resolve(ctx.docsDir, clean.slice(1))
     : path.resolve(path.dirname(ctx.abs), clean);
   const relToDocs = path.relative(path.resolve(ctx.docsDir), abs);
+  if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) return { missing: true };
   return { abs, rel: relToDocs.split(path.sep).join('/') };
 }
 
@@ -542,6 +543,10 @@ function renderInclude(link, ctx) {
   if (!link.title.includes(':include')) return link.raw;
   const mode = includeMode(link.url, link.title);
   const resolved = resolveLocal(link.url, ctx);
+  if (resolved.missing) {
+    ctx.onWarn(`missing include: ${link.url}`);
+    return includeLink(link, ctx);
+  }
   if (mode === 'link') return includeLink(link, ctx);
   const included = readText(resolved.abs);
   return transform(included, { ...ctx, inlined: true });

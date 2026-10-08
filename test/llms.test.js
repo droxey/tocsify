@@ -763,3 +763,20 @@ test('an include inside an included file stays a link, as Docsify does', () => {
   assert.equal(full.includes('B_TEXT'), false);
   assert.match(full, /\[b\]\(https:\/\/example\.com\/docs\/b\.md ':include'\)/);
 });
+
+test('a missing include warns and stays a link', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n',
+    'guide/page.md': '# Page\n\n[missing](missing.md \':include\')\n\n[dir](sub \':include\')\n\n[part](_parts/part.md \':include\')\n',
+    'guide/_parts/part.md': 'PART_TEXT\n\n[gone](gone.md \':include\')\n',
+  });
+  fs.mkdirSync(path.join(dir, 'guide/sub'));
+  const warnings = [];
+  const full = renderLlmsFull(siteOf(dir), { onWarn: (message) => warnings.push(message) });
+  assert.deepEqual(warnings, ['missing include: missing.md', 'missing include: sub']);
+  assert.match(full, /\[missing\]\(https:\/\/example\.com\/docs\/guide\/missing\.md ':include'\)/);
+  assert.match(full, /\[dir\]\(https:\/\/example\.com\/docs\/guide\/sub ':include'\)/);
+  const quiet = renderLlmsFull(siteOf(dir));
+  assert.match(quiet, /guide\/missing\.md ':include'/);
+  assert.match(full, /\[gone\]\(https:\/\/example\.com\/docs\/gone\.md ':include'\)/);
+});
