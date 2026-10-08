@@ -174,6 +174,7 @@ function renderLlmsTxt(site) {
   let out = `# ${site.title}\n`;
   if (site.summary) out += `\n> ${site.summary}\n`;
   for (const group of site.groups) {
+    out += `\n## ${group.name}\n\n`;
     for (const page of group.pages) {
       const desc = page.description ? `: ${page.description}` : '';
       out += `- [${page.title}](${page.url})${desc}\n`;

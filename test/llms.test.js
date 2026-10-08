@@ -275,3 +275,19 @@ test('URLs are absolute, use /, and percent-encode spaces', () => {
   const again = bare.groups[0].pages.find((item) => item.rel === 'my file.md');
   assert.equal(again.url, 'https://example.com/docs/my%20file.md');
 });
+
+test('h2 grouping puts root pages under ## Docs and one H2 per folder in toc order', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-h2-'));
+  fs.cpSync(siteDir, dir, { recursive: true });
+  const site = buildSite({
+    docsDir: dir,
+    baseUrl: 'https://example.com/docs/',
+    exclude: [path.join(dir, 'toc.md')],
+    cwd: dir,
+  });
+  assert.deepEqual(site.groups.map((group) => group.name), ['Docs', 'guide/parts', 'guide']);
+  const text = renderLlmsTxt(site);
+  assert.match(text, /## Docs\n\n- \[Toc Site\]/);
+  assert.match(text, /## guide\/parts\n\n- \[Part\]/);
+  assert.match(text, /## guide\n\n- \[Setup\]/);
+});
