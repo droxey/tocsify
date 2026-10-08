@@ -165,6 +165,15 @@ function parseSidebar(text) {
   return sections;
 }
 
+function sidebarTarget(target) {
+  const clean = target.split('#')[0].split('?')[0].trim();
+  let rel = clean;
+  if (rel.startsWith('/')) rel = rel.slice(1);
+  if (rel === '' || rel.endsWith('/')) rel += 'README.md';
+  else if (!path.posix.extname(rel)) rel += '.md';
+  return { rel };
+}
+
 function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
   const sidebarPath = path.join(docsDir, '_sidebar.md');
   const sections = parseSidebar(readText(sidebarPath));
@@ -179,7 +188,7 @@ function groupBySidebar(docsDir, baseUrl, exclude, onWarn) {
   }
   for (const section of sections) {
     for (const target of section.links) {
-      const resolved = { rel: target };
+      const resolved = sidebarTarget(target);
       const abs = path.resolve(docsDir, resolved.rel);
       const page = makePage(resolved.rel, abs, baseUrl);
       bucket(section.name).pages.push(page);

@@ -321,3 +321,23 @@ test('sidebar grouping follows _sidebar.md sections and order', () => {
   assert.deepEqual(site.groups[1].pages.map((page) => page.rel), ['guide/setup.md', 'guide/deep.md']);
   assert.match(renderLlmsTxt(site), /## Guide\n\n- \[Setup\]\(https:\/\/example\.com\/docs\/guide\/setup\.md\): Install\.\n- \[Deep\]/);
 });
+
+test('sidebar links resolve /, folder/, and extensionless paths', () => {
+  const dir = makeDocs({
+    'README.md': '# Home\n\nHi.\n',
+    'about.md': '# About\n\nAbout.\n',
+    'guide/README.md': '# Guide home\n\nNested.\n',
+    '_sidebar.md': [
+      '- Docs',
+      '  - [Root](/)',
+      '  - [About](/about#intro)',
+      '  - [Guide](guide/?tab=1)',
+    ].join('\n'),
+  });
+  const site = siteOf(dir, { group: 'sidebar' });
+  assert.deepEqual(site.groups[0].pages.map((page) => page.rel), [
+    'README.md',
+    'about.md',
+    'guide/README.md',
+  ]);
+});
