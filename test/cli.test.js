@@ -167,3 +167,13 @@ test('a bad --group value exits 1', () => {
   assert.equal(result.status, 1);
   assert.match(result.stderr, /--group must be h2 or sidebar/);
 });
+
+test('warnings go to stderr and the run exits 0', () => {
+  const dir = makeDocs({
+    'docs/README.md': '# Home\n\n[missing](missing.md \':include\')\n',
+  });
+  const result = runCli(['--base-url=https://example.com/docs/'], dir);
+  assert.equal(result.status, 0);
+  assert.match(result.stderr, /\[tocsify\] warning: missing include: missing.md/);
+  assert.equal(fs.existsSync(path.join(dir, 'docs/llms-full.txt')), true);
+});

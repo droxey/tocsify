@@ -157,6 +157,7 @@ function run(argv, {
   }
   if (parsed.values.verbose) stdout.write(toc);
   const names = writes.map(([abs]) => path.relative(cwd, abs).split(path.sep).join('/'));
+  for (const message of warnings) stderr.write(`[tocsify] warning: ${message}\n`);
   return 0;
 }
 
