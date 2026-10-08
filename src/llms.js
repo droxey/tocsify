@@ -303,13 +303,37 @@ function renderLlmsTxt(site) {
 
 function noop() {}
 
+function stripFrontMatterAndFirstH1(text) {
+  const fm = text.match(/^---\n[\s\S]*?\n---\n/);
+  const rest = fm ? text.slice(fm[0].length) : text;
+  const lines = rest.split('\n');
+  const mask = codeMask(lines);
+  for (let i = 0; i < lines.length; i += 1) {
+    if (mask[i] || /^\s*>/.test(lines[i])) continue;
+    const atx = lines[i].match(/^ {0,3}(#{1,6})[ \t]/);
+    if (atx && atx[1].length === 1) {
+      lines.splice(i, 1);
+      break;
+    }
+    if (
+      i + 1 < lines.length
+      && !mask[i + 1]
+      && /^ {0,3}=+[ \t]*$/.test(lines[i + 1])
+      && lines[i].trim()
+      && !/^\s*(?:[-*+]|\d+\.)[ \t]/.test(lines[i])
+    ) {
+      lines.splice(i, 2);
+      break;
+    }
+  }
+  return lines.join('\n');
+}
+
 function renderLlmsFull(site, { keepComments = false, onWarn } = {}) {
   const warn = onWarn || noop;
   const pages = site.groups.flatMap((group) => group.pages);
   const blocks = pages.map((page) => {
-    let body = readText(page.abs);
-    body = body.replace(/^ {0,3}#[ \t]+.*(?:\n|$)/, '');
-    body = body.trim();
+    const body = stripFrontMatterAndFirstH1(readText(page.abs)).trim();
     return `# ${page.title}\nSource: ${page.url}\n\n${body}`;
   });
   return `${blocks.join('\n\n')}\n`;

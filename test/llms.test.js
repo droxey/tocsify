@@ -481,3 +481,19 @@ test('llms-full.txt lists pages in llms.txt order with # Title and Source header
   assert.match(full, /Source: https:\/\/example.com\/docs\/README.md/);
   assert.ok(full.indexOf('# Home') < full.indexOf('# Bee'));
 });
+
+test('front matter and the first H1 are removed from each body', () => {
+  const dir = makeDocs({
+    'README.md': '---\ndescription: "D"\n---\n# Home\n\nKept.\n',
+    'setext.md': 'Setext Title\n============\n\nBody stays.\n',
+    'fenced.md': '```\n# Fake\n```\n> # Quoted\n# Real\n\nAfter.\n',
+  });
+  const full = renderLlmsFull(siteOf(dir));
+  assert.equal(full.includes('description:'), false);
+  assert.match(full, /# Home\nSource: .*\n\nKept\./);
+  assert.match(full, /# Setext Title\nSource: .*\n\nBody stays\./);
+  assert.match(full, /```\n# Fake\n```/);
+  assert.match(full, /> # Quoted/);
+  assert.match(full, /# Real\nSource:/);
+  assert.match(full, /After\./);
+});
