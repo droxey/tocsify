@@ -88,6 +88,10 @@ function run(argv, {
   }
   const dirArg = parsed.positionals[0] || 'docs';
   const docsDir = path.resolve(cwd, dirArg);
+  if (!/^[1-6]$/.test(parsed.values.maxdepth)) {
+    stderr.write('[tocsify] error: --maxdepth must be an integer from 1 to 6\n');
+    return 1;
+  }
   const fileAbs = path.resolve(cwd, parsed.values.file);
   const warnings = [];
   const onWarn = (message) => warnings.push(message);

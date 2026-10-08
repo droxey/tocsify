@@ -91,3 +91,20 @@ test('--file and -f set the toc path', () => {
   assert.equal(short.status, 0);
   assert.equal(fs.existsSync(path.join(dir, 'out/other.md')), true);
 });
+
+test('--maxdepth and -m set the depth and reject 0, 7, and 2.5', () => {
+  const dir = makeDocs({ 'docs/guide.md': '# Guide\n## Two\n### Three\n' });
+  const result = runCli(['--no-llm', '--maxdepth=2'], dir);
+  assert.equal(result.status, 0);
+  const toc = fs.readFileSync(path.join(dir, 'docs/toc.md'), 'utf8');
+  assert.equal(toc.includes('Three'), false);
+  assert.equal(toc.includes('Two'), true);
+  const short = runCli(['--no-llm', '-m', '1', '--file=docs/toc-m.md'], dir);
+  assert.equal(short.status, 0);
+  assert.equal(fs.readFileSync(path.join(dir, 'docs/toc-m.md'), 'utf8').includes('Two'), false);
+  for (const value of ['0', '7', '2.5']) {
+    const bad = runCli(['--no-llm', `--maxdepth=${value}`], dir);
+    assert.equal(bad.status, 1);
+    assert.match(bad.stderr, /--maxdepth must be an integer from 1 to 6/);
+  }
+});
