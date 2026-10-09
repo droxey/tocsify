@@ -99,7 +99,7 @@ test('skips dot files and dot folders', () => {
 test('ignores files that do not end in .md', () => {
   const dir = makeDocs({
     'notes.txt': 'nope\n',
-    'page.MD': '# Upper\n',
+    'upper.MD': '# Upper\n',
     'page.md': '# Lower\n',
   });
   assert.deepEqual(listPages(dir).map((page) => page.rel), ['page.md']);
