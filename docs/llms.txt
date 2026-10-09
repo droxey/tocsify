@@ -1,0 +1,18 @@
+# 📋 tocsify
+
+> 📋 npm module that generates a table of contents based on the file structure of a Docsify docs directory!
+
+## Docs
+
+- [📋 tocsify](https://droxey.com/tocsify/index.md): 📋 npm module that generates a table of contents based on the file structure of a Docsify docs directory!
+- [toc-test](https://droxey.com/tocsify/toc-test.md): test/markdown-guide
+
+## test
+
+- [Markdown](https://droxey.com/tocsify/test/markdown-guide.md): Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- [Single Header](https://droxey.com/tocsify/test/single-header.md)
+- [Test File](https://droxey.com/tocsify/test/test-file.md)
+
+## Optional
+
+- [llms-full.txt](https://droxey.com/tocsify/llms-full.txt): Full text of every page in one file
