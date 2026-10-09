@@ -1,0 +1,124 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const test = require('node:test');
+const { listPages } = require('../src/files');
+const { renderToc } = require('../src/tocgen');
+
+const root = path.join(__dirname, '..');
+
+const GENERATED = ['toc.md', 'llms.txt', 'llms-full.txt'].map((name) => path.join(root, 'docs', name));
+
+function copyDocs() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-toc-'));
+  fs.cpSync(path.join(root, 'docs'), path.join(dir, 'docs'), {
+    recursive: true,
+    filter: (src) => !GENERATED.includes(path.resolve(src)),
+  });
+  return path.join(dir, 'docs');
+}
+
+function pagesOf(docsDir) {
+  return listPages(docsDir, { exclude: [path.join(docsDir, 'toc-test.md')] });
+}
+
+function writePage(dir, rel, text) {
+  const abs = path.join(dir, rel);
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  fs.writeFileSync(abs, text);
+  return { rel, abs };
+}
+
+test('matches docs/toc-test.md byte for byte with maxdepth 3 and no header', () => {
+  const docsDir = copyDocs();
+  const toc = renderToc(pagesOf(docsDir), { maxdepth: 3, header: false });
+  const golden = fs.readFileSync(path.join(root, 'docs/toc-test.md'), 'utf8');
+  assert.equal(toc, golden);
+});
+
+test('header on adds ### before each page link', () => {
+  const docsDir = copyDocs();
+  const toc = renderToc(pagesOf(docsDir), { maxdepth: 3 });
+  assert.match(toc, /^### \[test\/markdown-guide\]\(test\/markdown-guide\.md\)/m);
+  assert.equal(toc.includes('\n### [Markdown]'), false);
+});
+
+test('maxdepth limits heading levels', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-depth-'));
+  const page = writePage(dir, 'guide.md', '# Guide\n## Two\n### Three\n');
+  const toc = renderToc([page], { maxdepth: 2, header: false });
+  assert.equal(toc.includes('Three'), false);
+  assert.equal(toc.includes('Two'), true);
+});
+
+test('default maxdepth 6 includes level 6 headings', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-depth6-'));
+  const page = writePage(dir, 'deep.md', '###### Header 6\n');
+  const toc = renderToc([page], { header: false });
+  assert.match(toc, /Header 6\]\(deep\.md#header-6\)/);
+});
+
+test('leaves out headings with either ignore form', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-ign-'));
+  const page = writePage(dir, 'page.md', [
+    '# Page',
+    '## Shown',
+    '## Hidden {docsify-ignore}',
+    '## Also <!-- {docsify-ignore} -->',
+  ].join('\n'));
+  const toc = renderToc([page], { header: false });
+  assert.equal(toc.includes('Shown'), true);
+  assert.equal(toc.includes('Hidden'), false);
+  assert.equal(toc.includes('Also'), false);
+});
+
+test('leaves out pages with either ignore-all form', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-ignall-'));
+  const plain = writePage(dir, 'plain.md', '# Plain {docsify-ignore-all}\n## Nope\n');
+  const comment = writePage(dir, 'comment.md', '# Comment <!-- {docsify-ignore-all} -->\n## Nope\n');
+  const kept = writePage(dir, 'kept.md', '# Kept\n');
+  const toc = renderToc([plain, comment, kept], { header: false });
+  assert.equal(toc.includes('plain'), false);
+  assert.equal(toc.includes('comment'), false);
+  assert.equal(toc.includes('kept'), true);
+});
+
+test('leaves out a heading whose id equals the file-name slug', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-slug-'));
+  const page = writePage(dir, 'setup.md', '# Intro\n## Setup\n');
+  const toc = renderToc([page], { header: false });
+  assert.equal(toc.includes('#setup)'), false);
+  assert.equal(toc.includes('#intro)'), true);
+});
+
+test('indents from the highest level in the file and cycles - * +', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-indent-'));
+  const page = writePage(dir, 'nested.md', '## Two\n### Three\n#### Four\n##### Five\n');
+  const toc = renderToc([page], { header: false });
+  const lines = toc.split('\n');
+  assert.equal(lines[1], '- [Two](nested.md#two)');
+  assert.equal(lines[2], '  * [Three](nested.md#three)');
+  assert.equal(lines[3], '    + [Four](nested.md#four)');
+  assert.equal(lines[4], '      - [Five](nested.md#five)');
+});
+
+test('a page with no listed headings gets only its link and a blank line', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-empty-page-'));
+  const page = writePage(dir, 'blank.md', 'Just a paragraph.\n');
+  assert.equal(renderToc([page], { header: false }), '[blank](blank.md)\n\n');
+});
+
+test('anchors use Docsify 5 ids such as _1-first-step and café-olé', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tocsify-ids-'));
+  const page = writePage(dir, 'edge.md', '# Edge\n## 1. First step\n## Café Olé\n');
+  const toc = renderToc([page], { header: false });
+  assert.match(toc, /edge\.md#_1-first-step\)/);
+  assert.match(toc, /edge\.md#café-olé\)/);
+});
+
+test('an empty docs folder gives an empty toc', () => {
+  assert.equal(renderToc([]), '');
+});

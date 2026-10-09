@@ -1,0 +1,12 @@
+- Guide
+  - [Setup](guide/setup.md)
+  - [Part](guide/parts/part.md)
+  - [Missing](missing-page.md)
+  - [Outside](https://example.com/nope)
+  - [Again](guide/setup.md)
+  - [Hidden](hidden.md)
+  - [Nav](/_navbar.md)
+- More
+  - [About](/about)
+  - [Samples](samples)
+  - [Slash](/)
