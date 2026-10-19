@@ -1,0 +1,89 @@
+# Toc Site
+Source: https://example.com/docs/README.md
+
+[![npm](https://img.shields.io/npm/v/tocsify.svg)](https://www.npmjs.com/package/tocsify)
+
+This is the home page. It explains the tool.
+
+# TOC
+
+See the contents.
+
+# About
+Source: https://example.com/docs/about.md
+
+About this project. More words here.
+
+# Comments
+Source: https://example.com/docs/comments.md
+
+Hello  world.
+
+
+
+`<!-- stay -->`
+
+```
+<!-- stay in fence -->
+```
+
+Text after.
+
+# Samples
+Source: https://example.com/docs/samples.md
+
+````js
+const sample = "```";
+console.log(sample);
+````
+
+[remote](https://example.com/a.md ':include')
+
+[secure](http://example.com/b.md ':include')
+
+[frag](https://example.com/docs/guide/setup.md ':include :fragment=part')
+
+[other](https://example.com/docs/guide/setup.md ':include :type=html')
+
+[notes](https://example.com/docs/notes.txt ':include')
+
+# Part
+Source: https://example.com/docs/guide/parts/part.md
+
+A part of the guide.
+
+![inner](https://example.com/docs/guide/parts/pic.png)
+
+[up](https://example.com/setup.md)
+
+# Setup
+Source: https://example.com/docs/guide/setup.md
+
+Use the guide for install.
+
+See [part](https://example.com/docs/guide/parts/part.md) and ![pic](https://example.com/docs/guide/img/a.png).
+
+<img src="https://example.com/docs/img/b.png" alt="b">
+
+<a href="https://example.com/docs/more.md">more</a>
+
+<a href="https://example.com/ext">ext</a>
+
+<a href="mailto:a@b.c">mail</a>
+
+<a href="#local">local</a>
+
+<a href="//cdn.example.com/x.js">cdn</a>
+
+[root](https://example.com/docs/top.md)
+
+Read [Advanced setup][adv], see ![diagram][diagram], and check [notes](https://example.com/docs/release%20notes.md), <a href=https://example.com/docs/faq.md>FAQ</a>, [pdf](https://example.com/docs/files/guide.pdf), [about](https://example.com/docs/about.md), and [guide home](https://example.com/docs/README.md).
+
+`[not a link](skip.md)`
+
+```
+[not](skip2.md)
+```
+
+[adv]: https://example.com/docs/advanced.md
+[diagram]: https://example.com/docs/guide/img/diagram.png
